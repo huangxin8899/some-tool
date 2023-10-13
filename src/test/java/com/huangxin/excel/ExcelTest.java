@@ -1,6 +1,7 @@
 package com.huangxin.excel;
 
 import com.alibaba.excel.EasyExcel;
+import com.huangxin.domain.User;
 import com.huangxin.excel.handle.exportHandle.DefaultMergeStrategy;
 import com.huangxin.excel.handle.exportHandle.ReplaceWriteHandle;
 import org.junit.Test;

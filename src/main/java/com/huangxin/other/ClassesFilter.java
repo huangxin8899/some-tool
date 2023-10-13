@@ -83,7 +83,7 @@ public class ClassesFilter implements ResourceLoaderAware {
      * @return 路径
      */
     private static String getResourcePath(String packagePath) {
-        Assert.isTrue(StrUtil.isNotBlank(packagePath), "packagePath is can not be null");
+        Assert.isTrue(StrUtil.isNotBlank(packagePath), "packagePath为null");
         return String.format(CLASSES_RESOURCE_PATH_PREFIX, ClassUtils.convertClassNameToResourcePath(ENVIRONMENT.resolveRequiredPlaceholders(packagePath)));
     }
 

@@ -1,4 +1,4 @@
-package com.huangxin.excel;
+package com.huangxin.domain;
 
 import com.huangxin.excel.annotation.ExtConfig;
 import lombok.AllArgsConstructor;
