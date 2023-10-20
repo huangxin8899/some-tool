@@ -4,6 +4,9 @@ import com.huangxin.domain.User;
 import org.apache.ibatis.jdbc.SQL;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * SqlTest
  *
@@ -25,5 +28,12 @@ public class SqlTest {
                 .groupBy(User::getId)
                 .build();
         System.out.println(string);
+    }
+
+    @Test
+    public void testInsert() {
+        User user = new User();
+        List<User> list = Arrays.asList(user, user, user);
+        System.out.println(new SqlBuilder().insertBatch(list));
     }
 }

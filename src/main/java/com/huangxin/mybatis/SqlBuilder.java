@@ -1,5 +1,9 @@
 package com.huangxin.mybatis;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.anno.ResultIgnore;
 import com.huangxin.mybatis.util.AnnoUtil;
@@ -10,8 +14,10 @@ import lombok.Getter;
 import org.apache.ibatis.jdbc.AbstractSQL;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * SqlBuilder
@@ -363,4 +369,53 @@ public class SqlBuilder extends AbstractSQL<SqlBuilder> implements ConditionBuil
         }
         return this;
     }
+
+    @SafeVarargs
+    public final <R> SqlBuilder insert(R r, Predicate<R>... filters) {
+        return insertBatch(Collections.singletonList(r), filters);
+    }
+
+    @SafeVarargs
+    public final <R> SqlBuilder insertBatch(Collection<R> collection, Predicate<R>... filters) {
+        if (collection.isEmpty()) {
+            return this;
+        }
+
+        R firstItem = collection.iterator().next();
+        String tableName = AnnoUtil.getTableName(firstItem.getClass());
+        Field[] fields = ReflectUtil.getFields(firstItem.getClass(), field -> !Modifier.isStatic(field.getModifiers()));
+        boolean firstItemProcessed = false;
+
+        for (R item : collection) {
+            if (!firstItemProcessed) {
+                INSERT_INTO(tableName);
+                for (Field field : fields) {
+                    String fieldName = ReflectUtil.getFieldName(field);
+                    String underlineCase = StrUtil.toUnderlineCase(fieldName);
+
+                    if (Arrays.stream(filters).noneMatch(filter -> filter.test(item))) {
+                        INTO_COLUMNS(underlineCase);
+                        Object fieldValue = ReflectUtil.getFieldValue(item, fieldName);
+                        String paramName = SqlConstant.ARG + paramMap.size();
+                        INTO_VALUES(StrUtil.format("'{}'", SqlConstant.wrapParam(paramName)));
+                        paramMap.put(paramName, fieldValue);
+                    }
+                }
+                firstItemProcessed = true;
+            } else {
+                ADD_ROW();
+                for (Field field : fields) {
+                    String fieldName = ReflectUtil.getFieldName(field);
+                    Object fieldValue = ReflectUtil.getFieldValue(item, fieldName);
+                    String paramName = SqlConstant.ARG + paramMap.size();
+                    INTO_VALUES(StrUtil.format("'{}'", SqlConstant.wrapParam(paramName)));
+                    paramMap.put(paramName, fieldValue);
+                }
+            }
+        }
+        return this;
+
+
+    }
+
 }
