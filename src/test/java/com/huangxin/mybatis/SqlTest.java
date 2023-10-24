@@ -1,7 +1,6 @@
 package com.huangxin.mybatis;
 
 import com.huangxin.domain.User;
-import org.apache.ibatis.jdbc.SQL;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -32,8 +31,9 @@ public class SqlTest {
 
     @Test
     public void testInsert() {
-        User user = new User();
-        List<User> list = Arrays.asList(user, user, user);
-        System.out.println(new SqlBuilder().insertBatch(list));
+        User user = new User(1, "2", 9);
+        User user2 = new User(1, "2", 19);
+        List<User> list = Arrays.asList(user, user, user2);
+        System.out.println(new SqlBuilder().insertBatch(list, user1 -> user1.getAge() == 10));
     }
 }

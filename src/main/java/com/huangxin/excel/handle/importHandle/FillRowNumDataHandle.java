@@ -22,7 +22,7 @@ public class FillRowNumDataHandle implements DataHandle {
     }
 
     @Override
-    public <T> boolean rowProcess(T t, int rowNum, List<String> msgList) {
+    public <T> boolean rowProcess(T t, int rowNum, List<String> msgList, Class<?>... groups) {
         Class<?> clazz = t.getClass();
         Field field;
         try {

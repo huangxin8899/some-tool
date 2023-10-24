@@ -67,11 +67,13 @@ public class ImportHelper<T>
     private final List<HeadHandle> headHandles = new ArrayList<>();
     // 用户流式处理器集合
     private final List<StreamHandle<T>> streamHandles = new ArrayList<>();
+    //
+    private final List<Class<?>> groups = new ArrayList<>();
     // 分批处理的最大批次，默认最大1000
     private int batchCount = 1000;
     // 分批处理函数
-    private Consumer<List<T>> consumer = list -> {
-    };
+    private Consumer<List<T>> consumer = list -> {};
+
 
 
     /**
@@ -177,45 +179,30 @@ public class ImportHelper<T>
     /**
      * 添加自定义数据处理器
      *
-     * @param handle 自定义数据处理器
-     */
-    public ImportHelper<T> addDataHandle(DataHandle handle) {
-        this.dataHandles.add(handle);
-        return this;
-    }
-
-    /**
-     * 添加多个自定义数据处理器
-     *
      * @param handles 自定义数据处理器
      */
-    public ImportHelper<T> addAllDataHandle(Collection<DataHandle> handles) {
-        this.dataHandles.addAll(handles);
+    public ImportHelper<T> addDataHandle(DataHandle... handles) {
+        this.dataHandles.addAll(Arrays.asList(handles));
         return this;
     }
 
     /**
      * 添加自定义表头处理器
      *
-     * @param handle 自定义表头处理器
-     */
-    public ImportHelper<T> addHeadHandle(HeadHandle handle) {
-        this.headHandles.add(handle);
-        return this;
-    }
-
-    /**
-     * 添加多个自定义表头处理器
-     *
      * @param handles 自定义表头处理器
      */
-    public ImportHelper<T> addAllHeadHandle(Collection<HeadHandle> handles) {
-        this.headHandles.addAll(handles);
+    public ImportHelper<T> addHeadHandle(HeadHandle... handles) {
+        this.headHandles.addAll(Arrays.asList(handles));
         return this;
     }
 
     public ImportHelper<T> addDefaultHeadHandle() {
         return this.addHeadHandle(new DefaultHeadHandle());
+    }
+
+    public ImportHelper<T> addGroups(Class<?>... groups) {
+        this.groups.addAll(Arrays.asList(groups));
+        return this;
     }
 
     public ImportHelper<T> notHeadNum(Integer noHeadNum) {
@@ -295,7 +282,7 @@ public class ImportHelper<T>
         }
         List<String> list = new ArrayList<>();
         for (DataHandle handle : dataHandles) {
-            if (!handle.rowProcess(t, currentRowNum, list)) {
+            if (!handle.rowProcess(t, currentRowNum, list, groups.toArray(new Class[0]))) {
                 return;
             }
         }
@@ -334,7 +321,7 @@ public class ImportHelper<T>
                 continue;
             }
             for (DataHandle handle : dataHandles) {
-                handle.fieldProcess(field, fieldValue, msgList);
+                handle.fieldProcess(t, field, fieldValue, msgList);
             }
         }
         return msgList;

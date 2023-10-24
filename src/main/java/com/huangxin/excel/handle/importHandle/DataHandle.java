@@ -15,7 +15,7 @@ public interface DataHandle {
      * @param t 行数据
      * @param msgList 行号对应的错误消息
      */
-    default <T> boolean rowProcess(T t, int rowNum, List<String> msgList) {
+    default <T> boolean rowProcess(T t, int rowNum, List<String> msgList, Class<?>... groups) {
         return true;
     }
 
@@ -27,6 +27,6 @@ public interface DataHandle {
      * @param fieldValue 字段值
      * @param msgList    行号对应的错误消息
      */
-    default void fieldProcess(Field field, Object fieldValue, List<String> msgList) {
+    default <T> void fieldProcess(T t, Field field, Object fieldValue, List<String> msgList) {
     }
 }

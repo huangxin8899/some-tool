@@ -71,4 +71,8 @@ public class MetaColumn {
         String wrapped = SqlConstant.wrapBackQuote(this.tableName);
         return wrapped + SqlConstant._AS_ + wrapped;
     }
+
+    public String wrapColumn() {
+        return SqlConstant.wrapBackQuote(this.columnName);
+    }
 }
