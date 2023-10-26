@@ -1,6 +1,10 @@
 package com.huangxin.mybatis;
 
 import com.huangxin.domain.User;
+import com.huangxin.mybatis.builder.DeleteBuilder;
+import com.huangxin.mybatis.builder.InsertBuilder;
+import com.huangxin.mybatis.builder.SelectBuilder;
+import com.huangxin.mybatis.builder.UpdateBuilder;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -17,7 +21,7 @@ public class SqlTest {
     public void testSelect() {
         /*SQL sql = SqlFactory.query(User.class).select(User::getId).eq(User::getAge, 1).getSql();
         System.out.println(sql.toString());*/
-        String string = new SqlBuilder().select(User::getId, "id1")
+        String string = new SelectBuilder().select(User::getId, "id1")
                 .from(User.class, "user1")
                 .eq(User::getName, "aa")
                 .or(e -> e.eq(User::getId, 1).eq(User::getId, 2))
@@ -25,6 +29,7 @@ public class SqlTest {
                 .rightJoin(User::getId, User::getAge, join -> join.eq(User::getName, "bb").or(e -> e.eq(User::getId, 1)))
                 .having(sql -> sql.ge(User::getAge, 12).or(e -> e.eq(User::getId, 1).eq(User::getId, 2)))
                 .groupBy(User::getId)
+                .orderByAsc(User::getId,User::getAge)
                 .build();
         System.out.println(string);
     }
@@ -34,6 +39,23 @@ public class SqlTest {
         User user = new User(1, "2", 9);
         User user2 = new User(1, "2", 19);
         List<User> list = Arrays.asList(user, user, user2);
-        System.out.println(new SqlBuilder().insertBatch(list, user1 -> user1.getAge() == 10));
+        System.out.println(new InsertBuilder().insertBatch(list).build());
+    }
+
+    @Test
+    public void testUpdate() {
+        String sql = new UpdateBuilder()
+                .update("111")
+                .set(User::getId, 2)
+                .eq(User::getId, 3).build();
+        System.out.println(sql);
+    }
+
+    @Test
+    public void testDelete() {
+        String sql = new DeleteBuilder()
+                .delete("111")
+                .eq(User::getId, 3).build();
+        System.out.println(sql);
     }
 }

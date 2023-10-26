@@ -1,5 +1,6 @@
-package com.huangxin.mybatis;
+package com.huangxin.mybatis.builder;
 
+import com.huangxin.mybatis.ConditionType;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
 
@@ -13,11 +14,9 @@ import java.util.function.Consumer;
  *
  * @author 黄鑫
  */
-public interface ConditionBuilder<T> {
+public interface ConditionBuilder<T> extends Builder {
 
-    String build();
-
-    default <R> String getTableDotColumn(SerializableFunction<R, ?> function) {
+    default <R> String getColumn(SerializableFunction<R, ?> function) {
         return FunctionUtil.getMetaColumn(function).wrapTableDotColumn();
     }
 
@@ -28,7 +27,7 @@ public interface ConditionBuilder<T> {
     T apply(boolean flag, String applySql, Object... params);
 
     default <R> T apply(boolean flag, ConditionType conditionType, SerializableFunction<R, ?> function, Object param) {
-        return apply(flag, conditionType, getTableDotColumn(function), param);
+        return apply(flag, conditionType, getColumn(function), param);
     }
 
     T apply(boolean flag, ConditionType conditionType, String column, Object param);
