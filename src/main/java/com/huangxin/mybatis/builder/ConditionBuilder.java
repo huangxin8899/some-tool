@@ -38,6 +38,12 @@ public interface ConditionBuilder<T> extends Builder {
 
     T or(boolean flag, Consumer<T> consumer);
 
+    default T and(Consumer<T> consumer) {
+        return this.and(true, consumer);
+    }
+
+    T and(boolean flag, Consumer<T> consumer);
+
     default <R> T eq(SerializableFunction<R, ?> function, Object param) {
         return this.eq(true, function, param);
     }

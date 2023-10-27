@@ -5,6 +5,7 @@ import com.huangxin.mybatis.builder.DeleteBuilder;
 import com.huangxin.mybatis.builder.InsertBuilder;
 import com.huangxin.mybatis.builder.SelectBuilder;
 import com.huangxin.mybatis.builder.UpdateBuilder;
+import org.apache.ibatis.jdbc.SQL;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -19,11 +20,10 @@ public class SqlTest {
 
     @Test
     public void testSelect() {
-        /*SQL sql = SqlFactory.query(User.class).select(User::getId).eq(User::getAge, 1).getSql();
-        System.out.println(sql.toString());*/
         String string = new SelectBuilder().select(User::getId, "id1")
                 .from(User.class, "user1")
                 .eq(User::getName, "aa")
+                .and(e -> e.eq(User::getId, 1).eq(User::getId, 1).or(c -> c.eq(User::getId, 2).eq(User::getId, 1)))
                 .or(e -> e.eq(User::getId, 1).eq(User::getId, 2))
                 .leftJoin(User::getId, User::getAge, join -> join.eq(User::getName, "bb").or(e -> e.eq(User::getId, 1).eq(User::getId, 2)))
                 .rightJoin(User::getId, User::getAge, join -> join.eq(User::getName, "bb").or(e -> e.eq(User::getId, 1)))
@@ -57,5 +57,18 @@ public class SqlTest {
                 .delete("111")
                 .eq(User::getId, 3).build();
         System.out.println(sql);
+    }
+
+    @Test
+    public void testSql() {
+        String string = new SQL().SELECT("11").FROM("22")
+                .WHERE("333", "333", "333")
+                .AND()
+                .WHERE("44")
+                .OR()
+                .WHERE("54")
+
+                .toString();
+        System.out.println(string);
     }
 }

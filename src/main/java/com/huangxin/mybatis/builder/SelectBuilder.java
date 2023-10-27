@@ -73,6 +73,15 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     public SelectBuilder apply(boolean flag, ConditionType conditionType, String column, Object param) {
         if (flag) {
             String resolve = ConditionType.resolve(conditionType, column, param, paramMap);
+            if (isAnd) {
+                if (isOr) {
+                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("or").add(str));
+                } else {
+                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("and").add(str));
+                }
+                return this;
+            }
+
             if (isOr && !isHaving) {
                 List<String> list = orList.get(orList.size() - 1);
                 Optional.ofNullable(resolve).ifPresent(list::add);
@@ -102,6 +111,33 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
                 consumer.accept(this);
             } finally {
                 isOr = Boolean.FALSE;
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public SelectBuilder and(boolean flag, Consumer<SelectBuilder> consumer) {
+        if (flag) {
+            try {
+                isAnd = Boolean.TRUE;
+                consumer.accept(this);
+            } finally {
+                String andStr = String.join(" AND ", andMap.get("and"));
+                String orStr = String.join(" OR ", andMap.get("or"));
+                String merge = StrUtil.format("({} OR {})", andStr, orStr);
+                if (isOr && !isHaving) {
+                    List<String> list = orList.get(orList.size() - 1);
+                    Optional.of(merge).ifPresent(list::add);
+                } else if (isHaving && !isOr) {
+                    Optional.of(merge).ifPresent(havingList::add);
+                } else if (isHaving) {
+                    List<String> list = havingOrList.get(havingOrList.size() - 1);
+                    Optional.of(merge).ifPresent(list::add);
+                } else {
+                    Optional.of(merge).ifPresent(whereList::add);
+                }
+                isAnd = Boolean.FALSE;
             }
         }
         return this;

@@ -4,6 +4,7 @@ import com.huangxin.mybatis.MetaColumn;
 
 import java.beans.Introspector;
 import java.lang.invoke.SerializedLambda;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,30 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FunctionUtil {
 
-    private static final Map<SerializableFunction<?, ?>, MetaColumn> COLUMN_MAP = new ConcurrentHashMap<>();
-//    private static final Map<SerializableFunction<?, ?>, String> TABLE_NAME_MAP = new ConcurrentHashMap<>();
-    private static final Map<SerializableFunction<?, ?>, Class<?>> CLASS_MAP = new ConcurrentHashMap<>();
+    private static final Map<SerializableFunction<?, ?>, WeakReference<MetaColumn>> COLUMN_MAP = new ConcurrentHashMap<>();
 
     public static <T, R> MetaColumn getMetaColumn(SerializableFunction<T, R> function) {
-        return COLUMN_MAP.getOrDefault(function, resolve(function));
-    }
-
-/*    public static <T, R> String getTableName(SerializableFunction<T, R> function) {
-        String className = TABLE_NAME_MAP.get(function);
-        if (className == null) {
-            resolve(function);
-            className = TABLE_NAME_MAP.get(function);
-        }
-        return className;
-    }*/
-
-    public static <T, R> Class<?> getTableClass(SerializableFunction<T, R> function) {
-        Class<?> clazz = CLASS_MAP.get(function);
-        if (clazz == null) {
-            resolve(function);
-            CLASS_MAP.get(function);
-        }
-        return clazz;
+        return COLUMN_MAP.getOrDefault(function, new WeakReference<>(resolve(function))).get();
     }
 
     private static <T, R> MetaColumn resolve(SerializableFunction<T, R> function) {
@@ -66,10 +47,8 @@ public class FunctionUtil {
             Field field = clazz.getDeclaredField(fieldName);
 
             MetaColumn metaColumn = MetaColumn.ofField(field);
-            CLASS_MAP.put(function, clazz);
-            COLUMN_MAP.put(function, metaColumn);
+            COLUMN_MAP.put(function, new WeakReference<>(metaColumn));
             return metaColumn;
-//            TABLE_NAME_MAP.put(function, SqlConstant.wrapBackQuote(AnnoUtil.getTableName(clazz)));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException |
                  NoSuchFieldException e) {
             throw new RuntimeException(e);
