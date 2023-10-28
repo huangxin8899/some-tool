@@ -1,7 +1,6 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
-import com.huangxin.mybatis.ConditionType;
 import com.huangxin.mybatis.MetaColumn;
 import com.huangxin.mybatis.SqlConstant;
 import com.huangxin.mybatis.anno.SelectIgnore;
@@ -13,7 +12,6 @@ import com.huangxin.mybatis.util.SerializableFunction;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -25,6 +23,8 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
 
     protected final List<String> selectList = new ArrayList<>();
     protected final List<String> fromList = new ArrayList<>();
+    protected final List<String> orList = new ArrayList<>();
+    protected final List<String> andList = new ArrayList<>();
     protected final List<String> innerJoinList = new ArrayList<>();
     protected final List<String> outerJoinList = new ArrayList<>();
     protected final List<String> leftOuterJoinList = new ArrayList<>();
@@ -33,8 +33,6 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     protected final List<String> groupByList = new ArrayList<>();
 
     protected final List<String> havingList = new ArrayList<>();
-    protected final List<List<String>> havingOrList = new ArrayList<>();
-    protected Boolean isHaving = Boolean.FALSE;
 
     @Override
     public String build() {
@@ -45,100 +43,32 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
         outerJoinList.forEach(sql::OUTER_JOIN);
         leftOuterJoinList.forEach(sql::LEFT_OUTER_JOIN);
         rightOuterJoinList.forEach(sql::RIGHT_OUTER_JOIN);
-        orList.forEach(ors -> {
-            if (!ors.isEmpty()) {
-                sql.OR().WHERE(ors.toArray(new String[0]));
-            }
-        });
+        andList.forEach(andSql -> sql.AND().WHERE(andSql));
+        orList.forEach(orSql -> sql.OR().WHERE(orSql));
         groupByList.forEach(sql::GROUP_BY);
         havingList.forEach(sql::HAVING);
-        havingOrList.forEach(havingOrs -> {
-            if (!havingOrs.isEmpty()) {
-                sql.OR().HAVING(havingOrs.toArray(new String[0]));
-            }
-        });
         orderByList.forEach(sql::ORDER_BY);
         return sql.toString();
     }
 
-    @Override
-    public SelectBuilder apply(boolean flag, String applySql, Object... params) {
+    public SelectBuilder or(Consumer<OrBuilder<SelectBuilder>> consumer) {
+        return or(true, consumer);
+    }
+
+    public SelectBuilder or(boolean flag, Consumer<OrBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            Optional.ofNullable(StrUtil.format(applySql, params)).ifPresent(whereList::add);
+            orList.add(new OrBuilder<>(consumer).build());
         }
         return this;
     }
 
-    @Override
-    public SelectBuilder apply(boolean flag, ConditionType conditionType, String column, Object param) {
-        if (flag) {
-            String resolve = ConditionType.resolve(conditionType, column, param, paramMap);
-            if (isAnd) {
-                if (isOr) {
-                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("or").add(str));
-                } else {
-                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("and").add(str));
-                }
-                return this;
-            }
-
-            if (isOr && !isHaving) {
-                List<String> list = orList.get(orList.size() - 1);
-                Optional.ofNullable(resolve).ifPresent(list::add);
-            } else if (isHaving && !isOr) {
-                Optional.ofNullable(resolve).ifPresent(havingList::add);
-            } else if (isHaving) {
-                List<String> list = havingOrList.get(havingOrList.size() - 1);
-                Optional.ofNullable(resolve).ifPresent(list::add);
-            } else {
-                Optional.ofNullable(resolve).ifPresent(whereList::add);
-            }
-
-        }
-        return this;
+    public SelectBuilder and(Consumer<AndBuilder<SelectBuilder>> consumer) {
+        return and(true, consumer);
     }
 
-    @Override
-    public SelectBuilder or(boolean flag, Consumer<SelectBuilder> consumer) {
+    public SelectBuilder and(boolean flag, Consumer<AndBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            try {
-                isOr = Boolean.TRUE;
-                if (isHaving) {
-                    havingOrList.add(new ArrayList<>());
-                } else {
-                    orList.add(new ArrayList<>());
-                }
-                consumer.accept(this);
-            } finally {
-                isOr = Boolean.FALSE;
-            }
-        }
-        return this;
-    }
-
-    @Override
-    public SelectBuilder and(boolean flag, Consumer<SelectBuilder> consumer) {
-        if (flag) {
-            try {
-                isAnd = Boolean.TRUE;
-                consumer.accept(this);
-            } finally {
-                String andStr = String.join(" AND ", andMap.get("and"));
-                String orStr = String.join(" OR ", andMap.get("or"));
-                String merge = StrUtil.format("({} OR {})", andStr, orStr);
-                if (isOr && !isHaving) {
-                    List<String> list = orList.get(orList.size() - 1);
-                    Optional.of(merge).ifPresent(list::add);
-                } else if (isHaving && !isOr) {
-                    Optional.of(merge).ifPresent(havingList::add);
-                } else if (isHaving) {
-                    List<String> list = havingOrList.get(havingOrList.size() - 1);
-                    Optional.of(merge).ifPresent(list::add);
-                } else {
-                    Optional.of(merge).ifPresent(whereList::add);
-                }
-                isAnd = Boolean.FALSE;
-            }
+            andList.add(new AndBuilder<>(consumer).build());
         }
         return this;
     }
@@ -189,19 +119,13 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
         return this;
     }
 
-    public SelectBuilder having(Consumer<SelectBuilder> consumer) {
+    public SelectBuilder having(Consumer<HavingBuilder<SelectBuilder>> consumer) {
         return having(true, consumer);
     }
 
-    public SelectBuilder having(boolean flag, Consumer<SelectBuilder> consumer) {
+    public SelectBuilder having(boolean flag, Consumer<HavingBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            try {
-                isHaving = Boolean.TRUE;
-                consumer.accept(this);
-            } finally {
-                isHaving = Boolean.FALSE;
-            }
-
+            havingList.add(new HavingBuilder<>(consumer).build());
         }
         return this;
     }

@@ -47,7 +47,10 @@ public class SqlTest {
         String sql = new UpdateBuilder()
                 .update("111")
                 .set(User::getId, 2)
-                .eq(User::getId, 3).build();
+                .eq(User::getName, "aa")
+                .and(e -> e.eq(User::getId, 1).eq(User::getId, 1).or(c -> c.eq(User::getId, 2).eq(User::getId, 1)))
+                .or(e -> e.eq(User::getId, 1).eq(User::getId, 2))
+                .build();
         System.out.println(sql);
     }
 
@@ -67,7 +70,6 @@ public class SqlTest {
                 .WHERE("44")
                 .OR()
                 .WHERE("54")
-
                 .toString();
         System.out.println(string);
     }

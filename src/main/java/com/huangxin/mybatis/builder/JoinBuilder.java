@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * @author 黄鑫
  */
-public class JoinBuilder<T extends SelectBuilder> extends CommonConditionBuilder<JoinBuilder<T>> {
+public class JoinBuilder<T extends AbstractConditionBuilder<T>> extends CommonConditionBuilder<JoinBuilder<T>> {
 
     protected final T selectBuilder;
     protected final SerializableFunction<?, ?> lFunc;
@@ -47,7 +47,7 @@ public class JoinBuilder<T extends SelectBuilder> extends CommonConditionBuilder
         Optional.ofNullable(consumer).ifPresent(c -> c.accept(this));
         String conditionStr = whereList.stream().collect(Collectors.joining(SqlConstant._AND_, SqlConstant.PRE_BRACKET, SqlConstant.POST_BRACKET));
         joinSegment.append(conditionStr);
-        orList.forEach(s -> {
+        orNestList.forEach(s -> {
             String orStr = String.join(SqlConstant._AND_, s);
             joinSegment.append(StrUtil.format(" OR ({})", orStr));
         });

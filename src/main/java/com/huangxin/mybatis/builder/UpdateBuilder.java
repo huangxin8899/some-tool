@@ -25,7 +25,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
         sql.UPDATE(table);
         setList.forEach(sql::SET);
         whereList.forEach(sql::WHERE);
-        orList.forEach(ors -> {
+        orNestList.forEach(ors -> {
             if (!ors.isEmpty()) {
                 sql.OR().WHERE(ors.toArray(new String[0]));
             }

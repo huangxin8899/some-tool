@@ -4,7 +4,6 @@ import com.huangxin.mybatis.SqlConstant;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
-import org.apache.ibatis.jdbc.SQL;
 
 /**
  * DeleteBuilder
@@ -17,7 +16,7 @@ public class DeleteBuilder extends CommonConditionBuilder<DeleteBuilder> {
     public String build() {
         sql.DELETE_FROM(table);
         whereList.forEach(sql::WHERE);
-        orList.forEach(ors -> {
+        orNestList.forEach(ors -> {
             if (!ors.isEmpty()) {
                 sql.OR().WHERE(ors.toArray(new String[0]));
             }

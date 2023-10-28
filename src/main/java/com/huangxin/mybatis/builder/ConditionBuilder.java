@@ -32,17 +32,17 @@ public interface ConditionBuilder<T> extends Builder {
 
     T apply(boolean flag, ConditionType conditionType, String column, Object param);
 
-    default T or(Consumer<T> consumer) {
-        return this.or(true, consumer);
-    }
-
-    T or(boolean flag, Consumer<T> consumer);
-
-    default T and(Consumer<T> consumer) {
-        return this.and(true, consumer);
-    }
-
-    T and(boolean flag, Consumer<T> consumer);
+//    default T or(Consumer<ConditionBuilder<T>> consumer) {
+//        return this.or(true, consumer);
+//    }
+//
+//    T or(boolean flag, Consumer<ConditionBuilder<T>> consumer);
+//
+//    default T and(Consumer<ConditionBuilder<T>> consumer) {
+//        return this.and(true, consumer);
+//    }
+//
+//    T and(boolean flag, Consumer<ConditionBuilder<T>> consumer);
 
     default <R> T eq(SerializableFunction<R, ?> function, Object param) {
         return this.eq(true, function, param);
