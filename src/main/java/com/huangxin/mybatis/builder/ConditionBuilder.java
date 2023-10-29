@@ -26,8 +26,16 @@ public interface ConditionBuilder<T> extends Builder {
 
     T apply(boolean flag, String applySql, Object... params);
 
+    default <R> T apply(ConditionType conditionType, SerializableFunction<R, ?> function, Object param) {
+        return apply(true, conditionType, getColumn(function), param);
+    }
+
     default <R> T apply(boolean flag, ConditionType conditionType, SerializableFunction<R, ?> function, Object param) {
         return apply(flag, conditionType, getColumn(function), param);
+    }
+
+    default <R> T apply(ConditionType conditionType, String column, Object param) {
+        return apply(true, conditionType, column, param);
     }
 
     T apply(boolean flag, ConditionType conditionType, String column, Object param);

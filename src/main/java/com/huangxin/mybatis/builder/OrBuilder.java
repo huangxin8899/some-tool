@@ -15,10 +15,6 @@ public class OrBuilder<T extends ConditionBuilder<T>> extends CommonConditionBui
 
     protected Consumer<OrBuilder<T>> consumer;
 
-    public OrBuilder() {
-        this.consumer = or -> {};
-    }
-
     public OrBuilder(Consumer<OrBuilder<T>> consumer) {
         this.consumer = consumer;
     }

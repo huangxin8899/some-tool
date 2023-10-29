@@ -22,13 +22,6 @@ public class JoinBuilder<T extends AbstractConditionBuilder<T>> extends CommonCo
     protected final SerializableFunction<?, ?> rFunc;
     protected final Consumer<JoinBuilder<T>> consumer;
 
-    public JoinBuilder(T selectBuilder, SerializableFunction<?, ?> lFunc, SerializableFunction<?, ?> rFunc) {
-        this.selectBuilder = selectBuilder;
-        this.lFunc = lFunc;
-        this.rFunc = rFunc;
-        this.consumer = join -> {};
-    }
-
     public JoinBuilder(T selectBuilder, SerializableFunction<?, ?> lFunc, SerializableFunction<?, ?> rFunc, Consumer<JoinBuilder<T>> consumer) {
         this.selectBuilder = selectBuilder;
         this.lFunc = lFunc;

@@ -15,10 +15,6 @@ public class AndBuilder<T extends ConditionBuilder<T>> extends CommonConditionBu
 
     protected Consumer<AndBuilder<T>> consumer;
 
-    public AndBuilder() {
-        this.consumer = and -> {};
-    }
-
     public AndBuilder(Consumer<AndBuilder<T>> consumer) {
         this.consumer = consumer;
     }

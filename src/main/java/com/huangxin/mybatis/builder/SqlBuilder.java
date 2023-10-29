@@ -18,15 +18,17 @@ import java.util.List;
  */
 public class SqlBuilder {
 
-    public <Query> SelectBuilder query(Query queryParam) {
+    public static <Query> SelectBuilder query(Query queryParam) {
         SelectBuilder selectBuilder = new SelectBuilder();
-        List<Field> fields = AnnoUtil.getFields(queryParam.getClass(), new ArrayList<>());
+        Class<?> paramClass = queryParam.getClass();
+        selectBuilder.select(paramClass).from(paramClass);
+        List<Field> fields = AnnoUtil.getFields(paramClass, new ArrayList<>());
         fields.stream().filter(field -> field.isAnnotationPresent(ConditionFlag.class)).forEach(field -> {
             ConditionFlag conditionFlag = field.getAnnotation(ConditionFlag.class);
             String columnName = ObjectUtil.isNotEmpty(conditionFlag.fieldName()) ? conditionFlag.fieldName() : MetaColumn.ofField(field).getColumnName();
             ConditionType type = conditionFlag.type();
             Object fieldValue = ReflectUtil.getFieldValue(queryParam, field);
-            ConditionType.resolve(type, columnName, fieldValue, selectBuilder.paramMap);
+            selectBuilder.apply(ObjectUtil.isNotEmpty(fieldValue), type, columnName, fieldValue);
         });
         return selectBuilder;
     }

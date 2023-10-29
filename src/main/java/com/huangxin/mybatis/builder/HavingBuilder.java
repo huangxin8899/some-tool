@@ -15,10 +15,6 @@ public class HavingBuilder<T extends ConditionBuilder<T>> extends CommonConditio
 
     protected Consumer<HavingBuilder<T>> consumer;
 
-    public HavingBuilder() {
-        this.consumer = having -> {};
-    }
-
     public HavingBuilder(Consumer<HavingBuilder<T>> consumer) {
         this.consumer = consumer;
     }

@@ -1,4 +1,4 @@
-package com.huangxin.mybatis.util;
+package com.huangxin.mybatis;
 
 public enum JoinType {
 

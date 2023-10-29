@@ -14,7 +14,7 @@ import java.util.Map;
 public class SqlEntity {
 
     protected String table;
-    protected Class<?> tableClass;
+    protected Class<?> resultClass;
     protected final SQL sql = new SQL();
 
     @Getter

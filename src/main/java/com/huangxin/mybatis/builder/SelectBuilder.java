@@ -4,9 +4,10 @@ import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.MetaColumn;
 import com.huangxin.mybatis.SqlConstant;
 import com.huangxin.mybatis.anno.SelectIgnore;
+import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
-import com.huangxin.mybatis.util.JoinType;
+import com.huangxin.mybatis.JoinType;
 import com.huangxin.mybatis.util.SerializableFunction;
 
 import java.lang.reflect.Field;
@@ -108,6 +109,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public SelectBuilder from(Class<?> tClass, String alias) {
+        resultClass = tClass;
         return from(AnnoUtil.getTableName(tClass), alias);
     }
 
@@ -294,6 +296,22 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
             }
         }
         return this;
+    }
+
+    public <T> T one() {
+        return (T) one(resultClass);
+    }
+
+    public <T> T one(Class<T> resultType) {
+        return SqlExecutor.queryOne(build(), paramMap, resultType);
+    }
+
+    public <T> List<T> list() {
+        return (List<T>) list(resultClass);
+    }
+
+    public <T> List<T> list(Class<T> resultType) {
+        return SqlExecutor.queryList(build(), paramMap, resultType);
     }
 
 }
