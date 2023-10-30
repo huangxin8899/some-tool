@@ -45,7 +45,7 @@ public class SqlTest {
     @Test
     public void testUpdate() {
         String sql = new UpdateBuilder()
-                .update("111")
+                .updateTable("111")
                 .set(User::getId, 2)
                 .eq(User::getName, "aa")
                 .and(e -> e.eq(User::getId, 1).eq(User::getId, 1).or(c -> c.eq(User::getId, 2).eq(User::getId, 1)))

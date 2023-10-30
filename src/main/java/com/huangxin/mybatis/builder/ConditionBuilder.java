@@ -1,13 +1,12 @@
 package com.huangxin.mybatis.builder;
 
-import com.huangxin.mybatis.ConditionType;
+import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * ConditionBuilder

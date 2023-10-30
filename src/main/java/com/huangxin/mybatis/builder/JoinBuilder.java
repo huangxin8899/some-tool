@@ -2,7 +2,7 @@ package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.MetaColumn;
-import com.huangxin.mybatis.SqlConstant;
+import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
 

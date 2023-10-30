@@ -4,6 +4,8 @@ import com.huangxin.domain.User;
 import com.huangxin.mybatis.builder.SqlBuilder;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 /**
  * BuilderTest
  *
@@ -17,7 +19,7 @@ public class BuilderTest {
 
     @Test
     public void name() {
-        String str = null + "123";
-        System.out.println(str);
+
+        SqlBuilder.updateBatchByIdAndExecute(Arrays.asList(User.getOne(), User.getOne()));
     }
 }

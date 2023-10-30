@@ -1,7 +1,8 @@
-package com.huangxin.mybatis;
+package com.huangxin.mybatis.type;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.huangxin.mybatis.constant.SqlConstant;
 
 import java.util.*;
 

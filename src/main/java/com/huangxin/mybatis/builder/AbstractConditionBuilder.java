@@ -1,7 +1,7 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
-import com.huangxin.mybatis.ConditionType;
+import com.huangxin.mybatis.type.ConditionType;
 
 import java.util.*;
 
@@ -50,6 +50,11 @@ public abstract class AbstractConditionBuilder<T extends ConditionBuilder<T>>
                 Optional.ofNullable(resolve).ifPresent(whereList::add);
             }
         }
+        return thisType;
+    }
+
+    public T resultClass(Class<?> resultClass) {
+        this.resultClass = resultClass;
         return thisType;
     }
 

@@ -2,7 +2,7 @@ package com.huangxin.mybatis.util;
 
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.MetaColumn;
-import com.huangxin.mybatis.SqlConstant;
+import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.anno.Id;
 import com.huangxin.mybatis.anno.Table;
 

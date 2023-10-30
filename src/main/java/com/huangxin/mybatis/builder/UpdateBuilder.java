@@ -1,7 +1,9 @@
 package com.huangxin.mybatis.builder;
 
-import com.huangxin.mybatis.ConditionType;
-import com.huangxin.mybatis.SqlConstant;
+import cn.hutool.core.util.ObjectUtil;
+import com.huangxin.mybatis.type.ConditionType;
+import com.huangxin.mybatis.constant.SqlConstant;
+import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
@@ -19,6 +21,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
 
     protected final SQL sql = new SQL();
     protected final List<String> setList = new ArrayList<>();
+    private boolean allowNull = false;
 
     @Override
     public String build() {
@@ -38,11 +41,17 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
         return FunctionUtil.getMetaColumn(function).wrapColumn();
     }
 
-    public UpdateBuilder update(Class<?> updateClass) {
-        return update(AnnoUtil.getTableName(updateClass));
+    public UpdateBuilder allowNull(boolean allowNull) {
+        this.allowNull = allowNull;
+        return this;
     }
 
-    public UpdateBuilder update(String table) {
+    public UpdateBuilder updateTable(Class<?> updateClass) {
+        updateTable(AnnoUtil.getTableName(updateClass));
+        return this;
+    }
+
+    public UpdateBuilder updateTable(String table) {
         this.table = SqlConstant.wrapBackQuote(table);
         return this;
     }
@@ -61,12 +70,16 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
     }
 
     public UpdateBuilder set(boolean flag, String column, Object param) {
-        if (flag) {
+        if (flag && (ObjectUtil.isNotEmpty(param) || allowNull)) {
             String wrapped = SqlConstant.wrapBackQuote(column);
             String resolve = ConditionType.resolve(ConditionType.EQ, wrapped, param, paramMap);
             setList.add(resolve);
         }
         return this;
+    }
+
+    public int execute() {
+        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.update(build(), paramMap) : 0;
     }
 
 

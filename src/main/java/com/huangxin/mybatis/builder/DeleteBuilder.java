@@ -1,6 +1,8 @@
 package com.huangxin.mybatis.builder;
 
-import com.huangxin.mybatis.SqlConstant;
+import cn.hutool.core.util.ObjectUtil;
+import com.huangxin.mybatis.constant.SqlConstant;
+import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.util.SerializableFunction;
@@ -36,5 +38,9 @@ public class DeleteBuilder extends CommonConditionBuilder<DeleteBuilder> {
     public DeleteBuilder delete(String table) {
         this.table = SqlConstant.wrapBackQuote(table);
         return this;
+    }
+
+    public int execute() {
+        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.delete(build(), paramMap) : 0;
     }
 }

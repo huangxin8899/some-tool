@@ -1,13 +1,14 @@
 package com.huangxin.mybatis.builder;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.MetaColumn;
-import com.huangxin.mybatis.SqlConstant;
+import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.anno.SelectIgnore;
 import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
-import com.huangxin.mybatis.JoinType;
+import com.huangxin.mybatis.type.JoinType;
 import com.huangxin.mybatis.util.SerializableFunction;
 
 import java.lang.reflect.Field;
@@ -97,7 +98,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
             }
             selectList.add(MetaColumn.ofField(field).wrapTableDotColumnAsColumn());
         }
-        return this;
+        return resultClass(rClass);
     }
 
     public SelectBuilder from(String table) {
@@ -109,7 +110,6 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public SelectBuilder from(Class<?> tClass, String alias) {
-        resultClass = tClass;
         return from(AnnoUtil.getTableName(tClass), alias);
     }
 
@@ -303,7 +303,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public <T> T one(Class<T> resultType) {
-        return SqlExecutor.queryOne(build(), paramMap, resultType);
+        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.queryOne(build(), paramMap, resultType) : null;
     }
 
     public <T> List<T> list() {
@@ -311,7 +311,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public <T> List<T> list(Class<T> resultType) {
-        return SqlExecutor.queryList(build(), paramMap, resultType);
+        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.queryList(build(), paramMap, resultType) : null;
     }
 
 }

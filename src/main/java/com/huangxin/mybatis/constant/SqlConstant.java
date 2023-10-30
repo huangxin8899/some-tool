@@ -1,4 +1,4 @@
-package com.huangxin.mybatis;
+package com.huangxin.mybatis.constant;
 
 /**
  * SqlConstant

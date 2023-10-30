@@ -2,11 +2,11 @@ package com.huangxin.mybatis;
 
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.anno.Column;
+import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.util.AnnoUtil;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
-import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;

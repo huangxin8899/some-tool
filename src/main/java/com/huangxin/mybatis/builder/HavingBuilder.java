@@ -1,7 +1,7 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
-import com.huangxin.mybatis.SqlConstant;
+import com.huangxin.mybatis.constant.SqlConstant;
 
 import java.util.Optional;
 import java.util.function.Consumer;

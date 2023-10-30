@@ -1,6 +1,6 @@
 package com.huangxin.mybatis.anno;
 
-import com.huangxin.mybatis.ConditionType;
+import com.huangxin.mybatis.type.ConditionType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -20,4 +20,6 @@ public @interface ConditionFlag {
      * 条件类型
      */
     ConditionType type() default ConditionType.EQ;
+
+    boolean update() default false;
 }
