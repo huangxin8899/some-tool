@@ -2,7 +2,7 @@ package com.huangxin.mybatis.builder;
 
 import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.util.FunctionUtil;
-import com.huangxin.mybatis.util.SerializableFunction;
+import com.huangxin.mybatis.func.SerializableFunction;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,18 +38,6 @@ public interface ConditionBuilder<T> extends Builder {
     }
 
     T apply(boolean flag, ConditionType conditionType, String column, Object param);
-
-//    default T or(Consumer<ConditionBuilder<T>> consumer) {
-//        return this.or(true, consumer);
-//    }
-//
-//    T or(boolean flag, Consumer<ConditionBuilder<T>> consumer);
-//
-//    default T and(Consumer<ConditionBuilder<T>> consumer) {
-//        return this.and(true, consumer);
-//    }
-//
-//    T and(boolean flag, Consumer<ConditionBuilder<T>> consumer);
 
     default <R> T eq(SerializableFunction<R, ?> function, Object param) {
         return this.eq(true, function, param);
@@ -234,6 +222,10 @@ public interface ConditionBuilder<T> extends Builder {
 
     default T in(String column, Collection<?> param) {
         return this.in(true, column, param);
+    }
+
+    default T in(boolean flag, String column, Collection<?> param) {
+        return this.apply(flag, ConditionType.IN, column, param);
     }
 
     default T in(boolean flag, String column, Object... params) {

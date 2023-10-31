@@ -35,17 +35,16 @@ public class ScriptUtil {
         String tableName = AnnoUtil.getTableName(updateClass);
         String primaryName = AnnoUtil.getPrimaryName(updateClass);
         String primaryColumn = AnnoUtil.getPrimaryColumn(updateClass);
-        whereSb.append(primaryColumn).append(SqlConstant._EQUAL_).append(StrUtil.format(ITEM, primaryName));
+        whereSb.append(StrUtil.format("{} = {}", primaryColumn, StrUtil.format(ITEM, primaryName)));
         List<Field> fields = AnnoUtil.getFields(updateClass, new ArrayList<>());
         for (int i = 0, fieldsSize = fields.size(), j = 0; i < fieldsSize; i++) {
             Field field = fields.get(i);
             if (!primaryName.equals(field.getName())) {
                 String fieldName = field.getName();
                 String columnName = MetaColumn.ofField(field).getColumnName();
-                String str =
-                        i < fieldsSize - 1 ?
-                        columnName + SqlConstant._EQUAL_ + StrUtil.format(ITEM_COMMA, fieldName) :
-                        columnName + SqlConstant._EQUAL_ + StrUtil.format(ITEM, fieldName);
+                String str = i < fieldsSize - 1 ?
+                                StrUtil.format("{} = {}", columnName, StrUtil.format(ITEM_COMMA, fieldName)) :
+                                StrUtil.format("{} = {}", columnName, StrUtil.format(ITEM, fieldName));
                 if (j != 0) {
                     setSb.append("\n       ");
                 }

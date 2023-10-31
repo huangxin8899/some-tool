@@ -1,12 +1,13 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.huangxin.mybatis.config.BuilderConfig;
 import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
-import com.huangxin.mybatis.util.SerializableFunction;
+import com.huangxin.mybatis.func.SerializableFunction;
 import org.apache.ibatis.jdbc.SQL;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
 
     protected final SQL sql = new SQL();
     protected final List<String> setList = new ArrayList<>();
-    private boolean allowNull = false;
+    private boolean allowNull = BuilderConfig.ALLOW_NULL;
 
     @Override
     public String build() {

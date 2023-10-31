@@ -64,12 +64,12 @@ public class MetaColumn {
     }
 
     public String wrapTableDotColumnAsColumn() {
-        return wrapTableDotColumn() + SqlConstant._AS_ + SqlConstant.wrapBackQuote(this.columnName);
+        return StrUtil.format("{} AS {}", wrapTableDotColumn(), SqlConstant.wrapBackQuote(this.columnName));
     }
 
     public String wrapTableAsTable() {
         String wrapped = SqlConstant.wrapBackQuote(this.tableName);
-        return wrapped + SqlConstant._AS_ + wrapped;
+        return StrUtil.format("{} AS {}", wrapped, wrapped);
     }
 
     public String wrapColumn() {

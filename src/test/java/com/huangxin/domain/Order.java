@@ -1,33 +1,26 @@
 package com.huangxin.domain;
 
 import com.huangxin.excel.annotation.ExtConfig;
-import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.anno.ConditionFlag;
-import lombok.AllArgsConstructor;
+import com.huangxin.mybatis.type.ConditionType;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * User
+ * Order
  *
  * @author 黄鑫
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
+public class Order {
 
     @ConditionFlag
     private Integer id;
 
-    @ExtConfig(autoMerge = true, replace = {"bb_aa"})
     @ConditionFlag(type = ConditionType.LIKE)
     private String name;
 
     @ConditionFlag(fieldName = "aged")
     private Integer age;
 
-    public static User getOne() {
-        return new User(1, "user", 12);
-    }
+    private Integer deleteFlag;
 }

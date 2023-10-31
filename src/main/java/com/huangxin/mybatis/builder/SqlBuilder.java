@@ -3,13 +3,15 @@ package com.huangxin.mybatis.builder;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.MetaColumn;
 import com.huangxin.mybatis.anno.ConditionFlag;
+import com.huangxin.mybatis.config.BuilderConfig;
 import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.ScriptUtil;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +67,7 @@ public class SqlBuilder {
     }
 
     public static <T> UpdateBuilder update(Class<T> tableClass) {
-        return update(false, tableClass);
+        return update(BuilderConfig.ALLOW_NULL, tableClass);
     }
 
     public static <T> UpdateBuilder update(boolean allowNull, Class<T> tableClass) {
@@ -73,7 +75,7 @@ public class SqlBuilder {
     }
 
     public static <T> UpdateBuilder update(String table) {
-        return update(false, table);
+        return update(BuilderConfig.ALLOW_NULL, table);
     }
 
     public static <T> UpdateBuilder update(boolean allowNull, String table) {
@@ -81,7 +83,7 @@ public class SqlBuilder {
     }
 
     public static <T> UpdateBuilder updateById(T t) {
-        return updateById(false, t);
+        return updateById(BuilderConfig.ALLOW_NULL, t);
     }
 
     public static <T> UpdateBuilder updateById(boolean allowNull, T t) {
@@ -105,11 +107,11 @@ public class SqlBuilder {
     }
 
     public static <T> int updateBatchByIdAndExecute(Collection<T> collection) {
-        return updateBatchByIdAndExecute(false, collection);
+        return updateBatchByIdAndExecute(BuilderConfig.ALLOW_NULL, collection);
     }
 
     public static <T> int updateBatchByIdAndExecute(Collection<T> collection, int batchSize) {
-        return updateBatchByIdAndExecute(false, collection, batchSize);
+        return updateBatchByIdAndExecute(BuilderConfig.ALLOW_NULL, collection, batchSize);
     }
 
     public static <T> int updateBatchByIdAndExecute(boolean allowNull, Collection<T> collection) {
@@ -127,5 +129,47 @@ public class SqlBuilder {
         return split.stream().mapToInt(list -> SqlExecutor.update(scrip, list)).sum();
     }
 
+
+    public static <T> DeleteBuilder delete(Class<T> tableClass) {
+        return new DeleteBuilder().deleteTable(tableClass);
+    }
+
+    public static <T> DeleteBuilder delete(boolean login, Class<T> tableClass) {
+        return new DeleteBuilder().deleteTable(tableClass).login(login);
+    }
+
+    public static DeleteBuilder delete(String table) {
+        return new DeleteBuilder().deleteTable(table);
+    }
+
+    public static DeleteBuilder delete(boolean login, String table) {
+        return new DeleteBuilder().deleteTable(table).login(login);
+    }
+
+    public static <T> DeleteBuilder deleteById(Class<T> tableClass, Serializable id) {
+        return new DeleteBuilder()
+                .deleteTable(tableClass)
+                .eq(ObjectUtil.isNotEmpty(id), AnnoUtil.getPrimaryColumn(tableClass), id);
+    }
+
+    public static <T> DeleteBuilder deleteById(boolean login, Class<T> tableClass, Serializable id) {
+        return new DeleteBuilder()
+                .deleteTable(tableClass)
+                .login(login)
+                .eq(ObjectUtil.isNotEmpty(id), AnnoUtil.getPrimaryColumn(tableClass), id);
+    }
+
+    public static <T> DeleteBuilder deleteByIds(Class<T> tableClass, Collection<? extends Serializable> idList) {
+        return new DeleteBuilder()
+                .deleteTable(tableClass)
+                .in(ObjectUtil.isNotEmpty(idList), AnnoUtil.getPrimaryColumn(tableClass), idList);
+    }
+
+    public static <T> DeleteBuilder deleteByIds(boolean login, Class<T> tableClass, Collection<? extends Serializable> idList) {
+        return new DeleteBuilder()
+                .deleteTable(tableClass)
+                .login(login)
+                .in(ObjectUtil.isNotEmpty(idList), AnnoUtil.getPrimaryColumn(tableClass), idList);
+    }
 
 }

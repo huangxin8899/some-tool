@@ -3,6 +3,7 @@ package com.huangxin.mybatis.builder;
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.constant.SqlConstant;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -15,7 +16,8 @@ public class OrBuilder<T extends ConditionBuilder<T>> extends CommonConditionBui
 
     protected Consumer<OrBuilder<T>> consumer;
 
-    public OrBuilder(Consumer<OrBuilder<T>> consumer) {
+    public OrBuilder(Map<String, Object> paramMap, Consumer<OrBuilder<T>> consumer) {
+        this.paramMap = paramMap;
         this.consumer = consumer;
     }
 

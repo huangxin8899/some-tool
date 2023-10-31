@@ -23,7 +23,7 @@ public class AnnoUtil {
 
     public static String wrapTableAsTable(Class<?> aClass) {
         String tableName = SqlConstant.wrapBackQuote(getTableName(aClass));
-        return tableName + SqlConstant._AS_ + tableName;
+        return StrUtil.format("{} AS {}", tableName, tableName);
     }
 
     /**

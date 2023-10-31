@@ -18,8 +18,8 @@ public class BuilderTest {
     }
 
     @Test
-    public void name() {
-
-        SqlBuilder.updateBatchByIdAndExecute(Arrays.asList(User.getOne(), User.getOne()));
+    public void testDelete() {
+        String string = SqlBuilder.deleteByIds(User.class, Arrays.asList("1", "2")).build();
+        System.out.println(string);
     }
 }

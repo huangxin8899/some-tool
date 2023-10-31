@@ -1,5 +1,6 @@
 package com.huangxin.mybatis;
 
+import com.huangxin.domain.Order;
 import com.huangxin.domain.User;
 import com.huangxin.mybatis.builder.DeleteBuilder;
 import com.huangxin.mybatis.builder.InsertBuilder;
@@ -57,8 +58,8 @@ public class SqlTest {
     @Test
     public void testDelete() {
         String sql = new DeleteBuilder()
-                .delete("111")
-                .eq(User::getId, 3).build();
+                .deleteTable("111")
+                .eq(Order::getId, 3).or(e -> e.eq(Order::getAge, 22)).build();
         System.out.println(sql);
     }
 

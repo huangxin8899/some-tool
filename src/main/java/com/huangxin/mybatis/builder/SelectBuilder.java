@@ -9,7 +9,7 @@ import com.huangxin.mybatis.executor.SqlExecutor;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.type.JoinType;
-import com.huangxin.mybatis.util.SerializableFunction;
+import com.huangxin.mybatis.func.SerializableFunction;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,7 +33,6 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     protected final List<String> rightOuterJoinList = new ArrayList<>();
     protected final List<String> orderByList = new ArrayList<>();
     protected final List<String> groupByList = new ArrayList<>();
-
     protected final List<String> havingList = new ArrayList<>();
 
     @Override
@@ -59,7 +58,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
 
     public SelectBuilder or(boolean flag, Consumer<OrBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            orList.add(new OrBuilder<>(consumer).build());
+            orList.add(new OrBuilder<>(paramMap, consumer).build());
         }
         return this;
     }
@@ -70,7 +69,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
 
     public SelectBuilder and(boolean flag, Consumer<AndBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            andList.add(new AndBuilder<>(consumer).build());
+            andList.add(new AndBuilder<>(paramMap, consumer).build());
         }
         return this;
     }
@@ -86,7 +85,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
 
     public <R> SelectBuilder select(SerializableFunction<R, ?> function, String alias) {
         String wrapped = FunctionUtil.getMetaColumn(function).wrapTableDotColumn();
-        selectList.add(wrapped + SqlConstant._AS_ + alias);
+        selectList.add(StrUtil.format("{} AS {}", wrapped, alias));
         return this;
     }
 
@@ -117,7 +116,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
         String aliasName = StrUtil.isNotEmpty(alias) ? alias : table;
         String tableWrapped = SqlConstant.wrapBackQuote(table);
         String aliasWrapped = SqlConstant.wrapBackQuote(aliasName);
-        fromList.add(tableWrapped + SqlConstant._AS_ + aliasWrapped);
+        fromList.add(StrUtil.format("{} AS {}", tableWrapped, aliasWrapped));
         return this;
     }
 
@@ -127,7 +126,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
 
     public SelectBuilder having(boolean flag, Consumer<HavingBuilder<SelectBuilder>> consumer) {
         if (flag) {
-            havingList.add(new HavingBuilder<>(consumer).build());
+            havingList.add(new HavingBuilder<>(paramMap, consumer).build());
         }
         return this;
     }
@@ -272,7 +271,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public <R> SelectBuilder join(boolean flag, JoinType joinType, SerializableFunction<R, ?> lFunc, SerializableFunction<R, ?> rFunc, Consumer<JoinBuilder<SelectBuilder>> consumer) {
-        return join(flag, joinType, new JoinBuilder<>(this, lFunc, rFunc, consumer));
+        return join(flag, joinType, new JoinBuilder<>(this, lFunc, rFunc, paramMap, consumer));
     }
 
     public SelectBuilder join(boolean flag, JoinType joinType, JoinBuilder<SelectBuilder> joinBuilder) {

@@ -18,5 +18,5 @@ public class SqlEntity {
     protected final SQL sql = new SQL();
 
     @Getter
-    protected final Map<String, Object> paramMap = new HashMap<>();
+    protected Map<String, Object> paramMap = new HashMap<>();
 }
