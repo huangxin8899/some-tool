@@ -1,6 +1,7 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
+import com.huangxin.mybatis.constant.SqlConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,21 @@ import java.util.function.Consumer;
  * @author 黄鑫
  */
 public abstract class CommonConditionBuilder<T extends ConditionBuilder<T>> extends AbstractConditionBuilder<T> {
+
+    protected Consumer<T> consumer;
+
+    @Override
+    public String build() {
+        StringBuilder joinSegment = new StringBuilder();
+        Optional.ofNullable(consumer).ifPresent(c -> c.accept(thisType));
+        String conditionStr = String.join(SqlConstant._AND_, whereList);
+        joinSegment.append(conditionStr);
+        orNestList.forEach(s -> {
+            String orStr = String.join(SqlConstant._AND_, s);
+            joinSegment.append(StrUtil.format(" OR ({})", orStr));
+        });
+        return joinSegment.toString();
+    }
 
     public T or(Consumer<ConditionBuilder<T>> consumer) {
         return or(true, consumer);
