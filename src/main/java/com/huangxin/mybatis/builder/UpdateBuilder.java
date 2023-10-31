@@ -4,7 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.huangxin.mybatis.config.BuilderConfig;
 import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.constant.SqlConstant;
-import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.util.SqlSessionUtil;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.func.SerializableFunction;
@@ -80,7 +80,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
     }
 
     public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.update(build(), paramMap) : 0;
+        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.update(build(), paramMap) : 0;
     }
 
 

@@ -1,6 +1,6 @@
 package com.huangxin.mybatis.util;
 
-import com.huangxin.mybatis.MetaColumn;
+import com.huangxin.mybatis.entity.MetaColumn;
 import com.huangxin.mybatis.func.SerializableFunction;
 
 import java.beans.Introspector;

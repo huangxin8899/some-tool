@@ -1,6 +1,7 @@
 package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.StrUtil;
+import com.huangxin.mybatis.entity.SqlEntity;
 import com.huangxin.mybatis.type.ConditionType;
 
 import java.util.*;

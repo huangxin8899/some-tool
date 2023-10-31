@@ -1,4 +1,4 @@
-package com.huangxin.mybatis;
+package com.huangxin.mybatis.entity;
 
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.anno.Column;

@@ -1,4 +1,4 @@
-package com.huangxin.mybatis.executor;
+package com.huangxin.mybatis.util;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.huangxin.mybatis.util.MsUtil;
@@ -17,7 +17,7 @@ import java.util.List;
  * @author huangxin
  */
 @Component
-public class SqlExecutor implements ApplicationContextAware {
+public class SqlSessionUtil implements ApplicationContextAware {
 
     private static SqlSessionFactory sqlSessionFactory;
 

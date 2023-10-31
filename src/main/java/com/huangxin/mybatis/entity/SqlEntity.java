@@ -1,4 +1,4 @@
-package com.huangxin.mybatis.builder;
+package com.huangxin.mybatis.entity;
 
 import lombok.Getter;
 import org.apache.ibatis.jdbc.SQL;

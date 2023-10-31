@@ -2,10 +2,10 @@ package com.huangxin.mybatis.builder;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.huangxin.mybatis.MetaColumn;
+import com.huangxin.mybatis.entity.MetaColumn;
 import com.huangxin.mybatis.constant.SqlConstant;
 import com.huangxin.mybatis.anno.SelectIgnore;
-import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.util.SqlSessionUtil;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.type.JoinType;
@@ -302,7 +302,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public <T> T one(Class<T> resultType) {
-        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.queryOne(build(), paramMap, resultType) : null;
+        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.queryOne(build(), paramMap, resultType) : null;
     }
 
     public <T> List<T> list() {
@@ -310,7 +310,7 @@ public class SelectBuilder extends AbstractConditionBuilder<SelectBuilder> {
     }
 
     public <T> List<T> list(Class<T> resultType) {
-        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.queryList(build(), paramMap, resultType) : null;
+        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.queryList(build(), paramMap, resultType) : null;
     }
 
 }

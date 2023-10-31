@@ -3,9 +3,10 @@ package com.huangxin.mybatis.builder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.huangxin.mybatis.MetaColumn;
+import com.huangxin.mybatis.entity.MetaColumn;
 import com.huangxin.mybatis.constant.SqlConstant;
-import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.entity.SqlEntity;
+import com.huangxin.mybatis.util.SqlSessionUtil;
 import com.huangxin.mybatis.util.AnnoUtil;
 
 import java.lang.reflect.Field;
@@ -62,6 +63,6 @@ public class InsertBuilder extends SqlEntity implements Builder {
     }
 
     public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.insert(build(), paramMap) : 0;
+        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.insert(build(), paramMap) : 0;
     }
 }

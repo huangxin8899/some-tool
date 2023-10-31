@@ -3,10 +3,10 @@ package com.huangxin.mybatis.builder;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.huangxin.mybatis.MetaColumn;
+import com.huangxin.mybatis.entity.MetaColumn;
 import com.huangxin.mybatis.anno.ConditionFlag;
 import com.huangxin.mybatis.config.BuilderConfig;
-import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.util.SqlSessionUtil;
 import com.huangxin.mybatis.type.ConditionType;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.ScriptUtil;
@@ -126,7 +126,7 @@ public class SqlBuilder {
         T t = iterator.next();
         String scrip = ScriptUtil.updateBatchByIdScrip(allowNull, t.getClass());
         List<List<T>> split = CollUtil.split(collection, batchSize);
-        return split.stream().mapToInt(list -> SqlExecutor.update(scrip, list)).sum();
+        return split.stream().mapToInt(list -> SqlSessionUtil.update(scrip, list)).sum();
     }
 
 

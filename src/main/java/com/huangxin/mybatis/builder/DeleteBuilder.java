@@ -4,7 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.mybatis.config.BuilderConfig;
 import com.huangxin.mybatis.constant.SqlConstant;
-import com.huangxin.mybatis.executor.SqlExecutor;
+import com.huangxin.mybatis.util.SqlSessionUtil;
 import com.huangxin.mybatis.util.AnnoUtil;
 import com.huangxin.mybatis.util.FunctionUtil;
 import com.huangxin.mybatis.func.SerializableFunction;
@@ -54,6 +54,6 @@ public class DeleteBuilder extends CommonConditionBuilder<DeleteBuilder> {
     }
 
     public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlExecutor.delete(build(), paramMap) : 0;
+        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.delete(build(), paramMap) : 0;
     }
 }
