@@ -1,8 +1,8 @@
 package com.huangxin.domain;
 
 import com.huangxin.excel.annotation.ExtConfig;
-import com.huangxin.mybatis.type.ConditionType;
-import com.huangxin.mybatis.anno.ConditionFlag;
+import com.huangxin.sql.type.ConditionType;
+import com.huangxin.sql.anno.ConditionFlag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
