@@ -316,6 +316,7 @@ public class SelectBuilder
 
     public int count() {
         selectList.clear();
+        selectFuncList.clear();
         limit[0] = -1L;
         offset = null;
         String sql = select("COUNT(*)").build();
