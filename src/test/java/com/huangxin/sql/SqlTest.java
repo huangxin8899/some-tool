@@ -27,7 +27,7 @@ public class SqlTest {
                 .and(and -> and.like(User::getName, "1").ge(User::getId, 1).or(or -> or.isNotNull(User::getId).eq(User::getId, 1)))
                 .or(or -> or.eq(User::getId, 1).eq(User::getId, 2))
                 .leftJoin(Order.class, "o", join -> join.eq(User::getId, Order::getId).notIn(User::getName, "bb","ccc").or(e -> e.eq(User::getId, 1).between(User::getId, 2, 3)))
-                .rightJoin(User.class, "user2", join -> join.eq(User::getName, "bb").or(e -> e.eq(User::getId, 1)))
+                .rightJoin(User.class, "user2", join -> join.eq(User::getId, User::getAge).eq(User::getName, "bb").or(e -> e.eq(User::getId, 1)))
                 .having(having -> having.ge(User::getAge, 12).or(e -> e.eq(User::getId, 1).eq(User::getId, 2)))
                 .groupBy(User::getId)
                 .orderByAsc(User::getId,User::getAge)

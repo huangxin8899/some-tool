@@ -45,7 +45,7 @@ public abstract class AbstractConditionBuilder<T extends ConditionBuilder<T>>
     @Override
     public T apply(boolean flag, ConditionType conditionType, String column, Object param) {
         if (flag) {
-            String resolve = ConditionType.resolve(conditionType, column, param, paramMap);
+            String resolve = ConditionType.resolve(conditionType, column, param, this);
             if (isAnd) {
                 if (isOr) {
                     Optional.ofNullable(resolve).ifPresent(str -> andMap.get("or").add(str));

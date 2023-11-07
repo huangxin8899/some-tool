@@ -15,7 +15,6 @@ import com.huangxin.sql.func.SelectFunc;
 import com.huangxin.sql.func.SerializableFunction;
 import com.huangxin.sql.type.JoinType;
 import com.huangxin.sql.util.AnnoUtil;
-import com.huangxin.sql.util.BuilderUtil;
 import com.huangxin.sql.util.FunctionUtil;
 import com.huangxin.sql.util.SqlSessionUtil;
 
@@ -72,12 +71,7 @@ public class SelectBuilder
                 .collect(Collectors.joining(", "));
         sql.LIMIT(StrUtil.isNotEmpty(limitStr) ? limitStr : null);
         sql.OFFSET(ObjectUtil.isNotEmpty(offset) ? String.valueOf(offset) : null);
-        BuilderUtil.remove();
         return sql.toString();
-    }
-
-    public SelectBuilder() {
-        BuilderUtil.set(this);
     }
 
     public SelectBuilder or(Consumer<OrBuilder<SelectBuilder>> consumer) {

@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.huangxin.sql.config.BuilderConfig;
 import com.huangxin.sql.constant.SqlConstant;
-import com.huangxin.sql.util.BuilderUtil;
 import com.huangxin.sql.util.SqlSessionUtil;
 import com.huangxin.sql.util.AnnoUtil;
 import com.huangxin.sql.util.FunctionUtil;
@@ -32,12 +31,7 @@ public class DeleteBuilder extends CommonConditionBuilder<DeleteBuilder> {
                 sql.OR().WHERE(ors.toArray(new String[0]));
             }
         });
-        BuilderUtil.remove();
         return sql.toString();
-    }
-
-    public DeleteBuilder() {
-        BuilderUtil.set(this);
     }
 
     @Override

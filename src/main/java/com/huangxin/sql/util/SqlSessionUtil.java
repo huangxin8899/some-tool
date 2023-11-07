@@ -2,6 +2,7 @@ package com.huangxin.sql.util;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.BeansException;
@@ -9,7 +10,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * DefaultSqlExecutor
@@ -28,33 +32,26 @@ public class SqlSessionUtil implements ApplicationContextAware {
     }
 
     public static <T> T queryOne(String sql, Object param, Class<T> resultType) {
-        if (StrUtil.isEmpty(sql)) {
+        List<T> list = queryList(sql, param, resultType);
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.size() > 1) {
+            throw new RuntimeException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+        } else {
             return null;
         }
-        System.out.println(sql);
-        System.out.println(param.toString());
-        return null;
-        /*try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
-            MsUtil msUtil = new MsUtil(sqlSession.getConfiguration());
-            Class<?> parameterType = ObjectUtil.isNotEmpty(param) ? param.getClass() : null;
-            String msId = msUtil.selectDynamic(sql, parameterType, resultType);
-            return sqlSession.selectOne(msId, param);
-        }*/
     }
 
     public static <T> List<T> queryList(String sql, Object param, Class<T> resultType) {
         if (StrUtil.isEmpty(sql)) {
-            return null;
+            return new ArrayList<>();
         }
-        System.out.println(sql);
-        System.out.println(param.toString());
-        return null;
-        /*try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
             MsUtil msUtil = new MsUtil(sqlSession.getConfiguration());
             Class<?> parameterType = ObjectUtil.isNotEmpty(param) ? param.getClass() : null;
             String msId = msUtil.selectDynamic(sql, parameterType, resultType);
             return sqlSession.selectList(msId, param);
-        }*/
+        }
     }
 
     public static int insert(String sql, Object param) {
@@ -84,5 +81,19 @@ public class SqlSessionUtil implements ApplicationContextAware {
         }
     }
 
+    public static <T> List<T> execQuery(String sql, Object param, Class<T> resultType, BiFunction<SqlSession, String, List<T>> function) {
+        System.out.println(sql);
+        System.out.println(param.toString());
+        return null;
+        /*if (StrUtil.isEmpty(sql)) {
+            return null;
+        }
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
+            MsUtil msUtil = new MsUtil(sqlSession.getConfiguration());
+            Class<?> parameterType = ObjectUtil.isNotEmpty(param) ? param.getClass() : null;
+            String msId = msUtil.selectDynamic(sql, parameterType, resultType);
+            return function.apply(sqlSession, msId);
+        }*/
+    }
 
 }

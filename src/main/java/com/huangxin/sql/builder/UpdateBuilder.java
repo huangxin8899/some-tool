@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.huangxin.sql.config.BuilderConfig;
 import com.huangxin.sql.type.ConditionType;
 import com.huangxin.sql.constant.SqlConstant;
-import com.huangxin.sql.util.BuilderUtil;
 import com.huangxin.sql.util.SqlSessionUtil;
 import com.huangxin.sql.util.AnnoUtil;
 import com.huangxin.sql.util.FunctionUtil;
@@ -35,12 +34,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
                 sql.OR().WHERE(ors.toArray(new String[0]));
             }
         });
-        BuilderUtil.remove();
         return sql.toString();
-    }
-
-    public UpdateBuilder() {
-        BuilderUtil.set(this);
     }
 
     @Override
@@ -79,7 +73,7 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
     public UpdateBuilder set(boolean flag, String column, Object param) {
         if (flag && (ObjectUtil.isNotEmpty(param) || allowNull)) {
             String wrapped = SqlConstant.wrapBackQuote(column);
-            String resolve = ConditionType.resolve(ConditionType.EQ, wrapped, param, paramMap);
+            String resolve = ConditionType.resolve(ConditionType.EQ, wrapped, param, this);
             setList.add(resolve);
         }
         return this;
