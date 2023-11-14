@@ -10,6 +10,8 @@ import java.util.Set;
  */
 public interface CacheService {
 
+    Object get(String key);
+
     /**
      * 匹配keys
      */
