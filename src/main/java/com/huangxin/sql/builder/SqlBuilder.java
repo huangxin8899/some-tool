@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.huangxin.sql.entity.MetaColumn;
-import com.huangxin.sql.anno.ConditionFlag;
+import com.huangxin.sql.anno.Condition;
 import com.huangxin.sql.config.BuilderConfig;
 import com.huangxin.sql.util.SqlSessionUtil;
 import com.huangxin.sql.type.ConditionType;
@@ -35,10 +35,10 @@ public class SqlBuilder {
             Class<?> paramClass = queryParam.getClass();
             builder.select(paramClass).from(paramClass);
             List<Field> fields = AnnoUtil.getFields(paramClass, new ArrayList<>());
-            fields.stream().filter(field -> field.isAnnotationPresent(ConditionFlag.class)).forEach(field -> {
-                ConditionFlag conditionFlag = field.getAnnotation(ConditionFlag.class);
-                String columnName = ObjectUtil.isNotEmpty(conditionFlag.fieldName()) ? conditionFlag.fieldName() : MetaColumn.ofField(field).getColumnName();
-                ConditionType type = conditionFlag.type();
+            fields.stream().filter(field -> field.isAnnotationPresent(Condition.class)).forEach(field -> {
+                Condition condition = field.getAnnotation(Condition.class);
+                String columnName = ObjectUtil.isNotEmpty(condition.fieldName()) ? condition.fieldName() : MetaColumn.ofField(field).getColumnName();
+                ConditionType type = condition.type();
                 Object fieldValue = ReflectUtil.getFieldValue(queryParam, field);
                 builder.apply(ObjectUtil.isNotEmpty(fieldValue), type, columnName, fieldValue);
             });

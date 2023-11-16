@@ -1,6 +1,6 @@
 package com.huangxin.domain;
 
-import com.huangxin.sql.anno.ConditionFlag;
+import com.huangxin.sql.anno.Condition;
 import com.huangxin.sql.type.ConditionType;
 import lombok.Data;
 
@@ -12,13 +12,13 @@ import lombok.Data;
 @Data
 public class Order {
 
-    @ConditionFlag
+    @Condition
     private Integer id;
 
-    @ConditionFlag(type = ConditionType.LIKE)
+    @Condition(type = ConditionType.LIKE)
     private String name;
 
-    @ConditionFlag(fieldName = "aged")
+    @Condition(fieldName = "aged")
     private Integer age;
 
     private Integer deleteFlag;

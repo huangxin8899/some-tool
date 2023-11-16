@@ -2,6 +2,7 @@ package com.huangxin.sql.builder;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.huangxin.sql.anno.SelectColumn;
 import com.huangxin.sql.anno.SelectIgnore;
 import com.huangxin.sql.builder.join.InnerJoin;
 import com.huangxin.sql.builder.join.LeftJoin;
@@ -126,11 +127,30 @@ public class SelectBuilder
     public SelectBuilder select(Class<?> rClass) {
         selectFuncList.add(() -> {
             List<Field> fields = AnnoUtil.getFields(rClass, new ArrayList<>());
+            String table = null;
+            if (rClass.isAnnotationPresent(SelectColumn.class)) {
+                Class<?> tableClass = rClass.getAnnotation(SelectColumn.class).table();
+                if (!tableClass.isAssignableFrom(Void.class)) {
+                    table = aliasMap.getOrDefault(tableClass, AnnoUtil.getTableName(tableClass));
+                }
+            }
             for (Field field : fields) {
-                if (field.isAnnotationPresent(SelectIgnore.class)) {
+                if (field.isAnnotationPresent(SelectIgnore.class) ||
+                        (!rClass.isAnnotationPresent(SelectColumn.class) && !field.isAnnotationPresent(SelectColumn.class))) {
                     continue;
                 }
-                selectList.add(MetaColumn.ofField(field).wrapTableDotColumn(aliasMap));
+                if (field.isAnnotationPresent(SelectColumn.class)) {
+                    SelectColumn selectColumn = field.getAnnotation(SelectColumn.class);
+                    if (StrUtil.isNotEmpty(selectColumn.value())) {
+                        selectList.add(selectColumn.value());
+                        continue;
+                    }
+                    if (!selectColumn.table().isAssignableFrom(Void.class)) {
+                        table = aliasMap.getOrDefault(selectColumn.table(), AnnoUtil.getTableName(selectColumn.table()));
+                    }
+                }
+                String column = StrUtil.toUnderlineCase(field.getName());
+                selectList.add(StrUtil.format("{}.{}", table, column));
             }
             resultClass(rClass);
         });

@@ -2,6 +2,7 @@ package com.huangxin.sql;
 
 import com.huangxin.domain.Order;
 import com.huangxin.domain.User;
+import com.huangxin.domain.UserVO;
 import com.huangxin.sql.builder.DeleteBuilder;
 import com.huangxin.sql.builder.InsertBuilder;
 import com.huangxin.sql.builder.SelectBuilder;
@@ -21,8 +22,8 @@ public class SqlTest {
 
     @Test
     public void testSelect() {
-        String string = new SelectBuilder().select(User::getId, "id1")
-                .from(User.class, "user1")
+        String string = new SelectBuilder().select(UserVO.class)
+                .from(User.class)
                 .eq(User::getName, "aa")
                 .and(and -> and.like(User::getName, "1").ge(User::getId, 1).or(or -> or.isNotNull(User::getId).eq(User::getId, 1)))
                 .or(or -> or.eq(User::getId, 1).eq(User::getId, 2))
