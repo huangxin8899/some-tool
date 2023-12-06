@@ -1,59 +1,58 @@
 package com.huangxin.sql.builder;
 
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.huangxin.sql.config.BuilderConfig;
-import com.huangxin.sql.constant.SqlConstant;
-import com.huangxin.sql.util.SqlSessionUtil;
-import com.huangxin.sql.util.AnnoUtil;
-import com.huangxin.sql.util.FunctionUtil;
-import com.huangxin.sql.func.SerializableFunction;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.delete.Delete;
 
 /**
  * DeleteBuilder
  *
  * @author 黄鑫
  */
-public class DeleteBuilder extends CommonConditionBuilder<DeleteBuilder> {
+public class DeleteBuilder extends AbstractConditionBuilder<DeleteBuilder> {
 
-    private boolean login = StrUtil.isNotEmpty(BuilderConfig.DELETE_FIELD);
+    private final Delete delete;
 
-    @Override
-    public String build() {
-        if (login) {
-            sql.UPDATE(table).SET(StrUtil.format("{} = '{}'", BuilderConfig.DELETE_FIELD, BuilderConfig.DELETE_VALUE));
-        } else {
-            sql.DELETE_FROM(table);
-        }
-        whereList.forEach(sql::WHERE);
-        orNestList.forEach(ors -> {
-            if (!ors.isEmpty()) {
-                sql.OR().WHERE(ors.toArray(new String[0]));
+    public DeleteBuilder() {
+        delete = new Delete();
+    }
+
+    public DeleteBuilder(Delete delete) {
+        this.delete = delete;
+    }
+
+    public DeleteBuilder(String sql) {
+        try {
+            delete = (Delete) CCJSqlParserUtil.parse(sql);
+            if (delete.getWhere()!=null) {
+                expressionList.add(delete.getWhere());
             }
-        });
-        return sql.toString();
+        } catch (JSQLParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public <R> String getColumn(SerializableFunction<R, ?> function) {
-        return FunctionUtil.getMetaColumn(function).wrapColumn();
+    public Object build() {
+//        Expression where = delete.getWhere();
+        return delete.withWhere(expressionList.stream().reduce((left, right) -> {
+            if (orList.contains(right)) {
+                return new OrExpression(left, right);
+            }
+            return new AndExpression(left, right);
+        }).orElse(null));
+    }
+
+    @Override
+    public String toString() {
+        return build().toString();
     }
 
     public DeleteBuilder deleteTable(Class<?> deleteClass) {
-        return deleteTable(AnnoUtil.getTableName(deleteClass));
-    }
-
-    public DeleteBuilder deleteTable(String table) {
-        this.table = SqlConstant.wrapBackQuote(table);
+        delete.withTable(getTable(deleteClass));
         return this;
     }
 
-    public DeleteBuilder login(boolean login) {
-        this.login = login;
-        return this;
-    }
-
-    public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.delete(build(), paramMap) : 0;
-    }
 }

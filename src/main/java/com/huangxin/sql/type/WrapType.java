@@ -1,47 +1,51 @@
 package com.huangxin.sql.type;
 
-import cn.hutool.core.util.StrUtil;
-import com.huangxin.sql.builder.AbstractConditionBuilder;
+import cn.hutool.core.date.DateUtil;
 import com.huangxin.sql.config.BuilderConfig;
-import com.huangxin.sql.constant.SqlConstant;
+import com.huangxin.sql.entity.BaseBuilder;
+import com.huangxin.sql.expression.MybatisExpression;
+import com.huangxin.sql.expression.StringExpression;
 import com.huangxin.sql.func.SerializableFunction;
-import com.huangxin.sql.util.FunctionUtil;
+import net.sf.jsqlparser.expression.*;
 
-import java.util.Map;
+import java.util.Date;
 import java.util.function.BiFunction;
 
 public enum WrapType {
-    // 默认 ARG0、AGR1……自增
+
     AUTO((builder, param) -> {
-        Map<String, Object> paramMap = builder.getParamMap();
-        String nextKey = SqlConstant.ARG + paramMap.size();
-        paramMap.put(nextKey, param);
-        return SqlConstant.wrapParam(nextKey);
+        if (param instanceof String) {
+            return new StringValue(param.toString());
+        } else if (param instanceof Integer || param instanceof Long) {
+            return new LongValue(param.toString());
+        } else if (param instanceof Double) {
+            return new DoubleValue(param.toString());
+        } else if (param instanceof Date) {
+            return new StringValue(DateUtil.formatDateTime((Date) param));
+        } else {
+            return new StringExpression(param);
+        }
     }),
 
     // 直接toString()输出
-    UNALTERED((builder, param) -> StrUtil.format("'{}'", param.toString())),
+    STRING((builder, param) -> new StringExpression(param)),
 
-    // 自定义占位符 paramMap会以{"0":param,"1":param,……}记录参数
-    PLACEHOLDER((builder, param) -> {
-        Map<String, Object> paramMap = builder.getParamMap();
-        paramMap.put(String.valueOf(paramMap.size()), param);
-        return BuilderConfig.PLACEHOLDER;
-    }),
+    // 默认 #{param0}、#{param1}……自增
+    MYBATIS((builder, param) -> new MybatisExpression(builder.nextParamName(param))),
 
-    // 自定义
-    CUSTOM((builder, param) -> BuilderConfig.PLACEHOLDER),
+    // ":param0 :param0"占位
+    JDBC((builder, param) -> new JdbcNamedParameter(builder.nextParamName(param))),
     ;
 
-    private final BiFunction<AbstractConditionBuilder<?>, Object, String> strategy;
+    private final BiFunction<BaseBuilder, Object, Expression> strategy;
 
-    WrapType(BiFunction<AbstractConditionBuilder<?>, Object, String> strategy) {
+    WrapType(BiFunction<BaseBuilder, Object, Expression> strategy) {
         this.strategy = strategy;
     }
 
-    public static String getWrapSegment(AbstractConditionBuilder<?> builder, Object param) {
+    public static Expression getWrapExpression(BaseBuilder builder, Object param) {
         if (param instanceof SerializableFunction) {
-            return FunctionUtil.getMetaColumn((SerializableFunction) param).wrapTableDotColumn(builder.getAliasMap());
+            return builder.getColumn((SerializableFunction) param);
         }
         return BuilderConfig.WRAP_TYPE.strategy.apply(builder, param);
     }

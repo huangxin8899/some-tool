@@ -2,7 +2,6 @@ package com.huangxin.sql.util;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.BeansException;
@@ -13,10 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
- * DefaultSqlExecutor
+ * SqlSessionUtil
  *
  * @author huangxin
  */
@@ -82,10 +80,7 @@ public class SqlSessionUtil implements ApplicationContextAware {
     }
 
     public static <T> List<T> execQuery(String sql, Object param, Class<T> resultType, BiFunction<SqlSession, String, List<T>> function) {
-        System.out.println(sql);
-        System.out.println(param.toString());
-        return null;
-        /*if (StrUtil.isEmpty(sql)) {
+        if (StrUtil.isEmpty(sql)) {
             return null;
         }
         try (SqlSession sqlSession = sqlSessionFactory.openSession(true)) {
@@ -93,7 +88,7 @@ public class SqlSessionUtil implements ApplicationContextAware {
             Class<?> parameterType = ObjectUtil.isNotEmpty(param) ? param.getClass() : null;
             String msId = msUtil.selectDynamic(sql, parameterType, resultType);
             return function.apply(sqlSession, msId);
-        }*/
+        }
     }
 
 }

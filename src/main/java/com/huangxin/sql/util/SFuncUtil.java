@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FunctionUtil {
+public class SFuncUtil {
 
     private static final Map<SerializableFunction<?, ?>, WeakReference<MetaColumn>> COLUMN_MAP = new ConcurrentHashMap<>();
 

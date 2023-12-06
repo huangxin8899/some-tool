@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class SqlTest {
 
+
     @Test
     public void testSelect() {
         String string = new SelectBuilder().select(UserVO.class)
@@ -30,9 +31,10 @@ public class SqlTest {
                 .leftJoin(Order.class, "o", join -> join.eq(User::getId, Order::getId).notIn(User::getName, "bb","ccc").or(e -> e.eq(User::getId, 1).between(User::getId, 2, 3)))
                 .rightJoin(User.class, "user2", join -> join.eq(User::getId, User::getAge).eq(User::getName, "bb").or(e -> e.eq(User::getId, 1)))
                 .having(having -> having.ge(User::getAge, 12).or(e -> e.eq(User::getId, 1).eq(User::getId, 2)))
+                .having(having -> having.eq(User::getId, 1))
                 .groupBy(User::getId)
                 .orderByAsc(User::getId,User::getAge)
-                .build();
+                .toString();
         System.out.println(string);
     }
 
@@ -41,38 +43,26 @@ public class SqlTest {
         User user = new User(1, "2", 9);
         User user2 = new User(1, "2", 19);
         List<User> list = Arrays.asList(user, user, user2);
-        System.out.println(new InsertBuilder().insertBatch(list).build());
+        System.out.println(new InsertBuilder().insertBatch(list).toString());
     }
 
     @Test
     public void testUpdate() {
         String sql = new UpdateBuilder()
-                .updateTable("111")
+                .updateTable(User.class)
                 .set(User::getId, 2)
                 .eq(User::getName, "aa")
                 .and(e -> e.eq(User::getId, 1).eq(User::getId, 1).or(c -> c.eq(User::getId, 2).eq(User::getId, 1)))
                 .or(e -> e.eq(User::getId, 1).eq(User::getId, 2))
-                .build();
+                .toString();
         System.out.println(sql);
     }
 
     @Test
     public void testDelete() {
         String sql = new DeleteBuilder()
-                .deleteTable("111")
-                .eq(Order::getId, 3).or(e -> e.eq(Order::getAge, 22)).build();
+                .deleteTable(Order.class)
+                .eq(Order::getId, 3).or(e -> e.eq(Order::getAge, 22)).toString();
         System.out.println(sql);
-    }
-
-    @Test
-    public void testSql() {
-        String string = new SQL().SELECT("11").FROM("22")
-                .WHERE("333", "333", "333")
-                .AND()
-                .WHERE("44")
-                .OR()
-                .WHERE("54")
-                .toString();
-        System.out.println(string);
     }
 }

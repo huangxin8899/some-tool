@@ -3,6 +3,9 @@ package com.huangxin.tree;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The TreeBuilder class provides a static method to build a tree structure from a list of tree nodes.
+ */
 public class TreeBuilder {
 
     public static <T, E extends Tree<T>> List<E> build(List<E> nodes, T rootId) {
@@ -12,6 +15,7 @@ public class TreeBuilder {
         rootList.forEach(root -> setChildren(root, nodes, filterOperated));
         return rootList;
     }
+
 
     private static <T, E extends Tree<T>> void setChildren(Tree<T> root, List<E> nodes, Map<T, T> filterOperated) {
         List<Tree<T>> children = new ArrayList<>();

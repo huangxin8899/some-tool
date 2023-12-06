@@ -1,78 +1,68 @@
 package com.huangxin.sql.builder;
 
-import cn.hutool.core.util.StrUtil;
-import com.huangxin.sql.entity.SqlEntity;
+import com.huangxin.sql.entity.BaseBuilder;
 import com.huangxin.sql.func.SerializableFunction;
 import com.huangxin.sql.type.ConditionType;
-import com.huangxin.sql.util.FunctionUtil;
-import lombok.Getter;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.schema.Column;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * AbstractConditionBuilder
  *
  * @author 黄鑫
  */
-public abstract class AbstractConditionBuilder<T extends ConditionBuilder<T>>
-        extends SqlEntity
+public abstract class AbstractConditionBuilder<T extends AbstractConditionBuilder<T>>
+        extends BaseBuilder
         implements ConditionBuilder<T> {
 
-    protected final List<String> whereList = new ArrayList<>();
-    protected final Map<String, List<String>> andMap = createAndMap();
-    protected final List<List<String>> orNestList = new ArrayList<>();
-    protected Boolean isOr = Boolean.FALSE;
-    protected Boolean isAnd = Boolean.FALSE;
-    @Getter
-    protected Map<Class<?>, String> aliasMap = new HashMap<>();
-
-    protected final T thisType = (T) this;
-
+    protected T typeThis = (T) this;
+    protected Consumer<T> consumer;
+    protected List<Expression> expressionList = new ArrayList<>();
+    protected Set<Expression> orList = new HashSet<>();
 
     @Override
-    public <R> String getColumn(SerializableFunction<R, ?> function) {
-        return FunctionUtil.getMetaColumn(function).wrapTableDotColumn(aliasMap);
+    public T and(boolean flag, Consumer<AndBuilder> andConsumer) {
+        expressionList.add(new Parenthesis(new AndBuilder(typeThis, andConsumer).build()));
+        return typeThis;
     }
 
     @Override
-    public T apply(boolean flag, String applySql, Object... params) {
+    public T or(boolean flag, Consumer<OrBuilder> orConsumer) {
+        Parenthesis parenthesis = new Parenthesis(new OrBuilder(typeThis, orConsumer).build());
+        expressionList.add(parenthesis);
+        orList.add(parenthesis);
+        return typeThis;
+    }
+
+    @Override
+    public <R> Column toColumn(SerializableFunction<R, ?> function) {
+        return getColumn(function);
+    }
+
+    @Override
+    public T apply(boolean flag, ConditionType conditionType, Column column, Object param) {
         if (flag) {
-            Optional.ofNullable(StrUtil.format(applySql, params)).ifPresent(whereList::add);
+            expressionList.add(ConditionType.resolve(conditionType, column, param, this));
         }
-        return thisType;
+        return typeThis;
     }
 
-    @Override
-    public T apply(boolean flag, ConditionType conditionType, String column, Object param) {
-        if (flag) {
-            String resolve = ConditionType.resolve(conditionType, column, param, this);
-            if (isAnd) {
-                if (isOr) {
-                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("or").add(str));
-                } else {
-                    Optional.ofNullable(resolve).ifPresent(str -> andMap.get("and").add(str));
-                }
-                return thisType;
-            }
-            if (isOr) {
-                List<String> list = orNestList.get(orNestList.size() - 1);
-                Optional.ofNullable(resolve).ifPresent(list::add);
-            } else {
-                Optional.ofNullable(resolve).ifPresent(whereList::add);
-            }
+    protected Expression buildExpression() {
+        Optional.ofNullable(consumer).ifPresent(c -> c.accept(typeThis));
+        if (!orList.isEmpty() && orList.contains(expressionList.get(0))) {
+            throw new IllegalArgumentException("嵌套查询第一个条件不能是or");
         }
-        return thisType;
-    }
-
-    public T resultClass(Class<?> resultClass) {
-        this.resultClass = resultClass;
-        return thisType;
-    }
-
-    private Map<String, List<String>> createAndMap() {
-        Map<String, List<String>> map = new HashMap<>();
-        map.put("or", new ArrayList<>());
-        map.put("and", new ArrayList<>());
-        return map;
+        return expressionList.stream().reduce((left, right) -> {
+            if (orList.contains(right)) {
+                return new OrExpression(left, right);
+            }
+            return new AndExpression(left, right);
+        }).orElse(null);
     }
 }

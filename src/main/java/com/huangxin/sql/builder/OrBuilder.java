@@ -1,6 +1,7 @@
 package com.huangxin.sql.builder;
 
-import java.util.Map;
+import net.sf.jsqlparser.expression.Expression;
+
 import java.util.function.Consumer;
 
 /**
@@ -8,11 +9,19 @@ import java.util.function.Consumer;
  *
  * @author huangxin
  */
-public class OrBuilder<T extends ConditionBuilder<T>> extends CommonConditionBuilder<OrBuilder<T>> {
+public class OrBuilder extends AbstractConditionBuilder<OrBuilder> {
 
-    public OrBuilder(Map<String, Object> paramMap, Map<Class<?>, String> aliasMap ,Consumer<OrBuilder<T>> consumer) {
-        this.paramMap = paramMap;
-        this.aliasMap = aliasMap;
+
+    public OrBuilder(AbstractConditionBuilder<?> builder, Consumer<OrBuilder> consumer) {
+        this.paramMap = builder.getParamMap();
+        this.tableMap = builder.getTableMap();
         this.consumer = consumer;
     }
+
+
+    @Override
+    public Expression build() {
+        return buildExpression();
+    }
+
 }

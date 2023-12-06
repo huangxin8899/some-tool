@@ -2,44 +2,38 @@ package com.huangxin.sql.builder;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.huangxin.sql.config.BuilderConfig;
-import com.huangxin.sql.type.ConditionType;
-import com.huangxin.sql.constant.SqlConstant;
-import com.huangxin.sql.util.SqlSessionUtil;
-import com.huangxin.sql.util.AnnoUtil;
-import com.huangxin.sql.util.FunctionUtil;
 import com.huangxin.sql.func.SerializableFunction;
-import org.apache.ibatis.jdbc.SQL;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.huangxin.sql.type.WrapType;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.update.Update;
 
 /**
  * UpdateBuilder
  *
  * @author 黄鑫
  */
-public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
+public class UpdateBuilder extends AbstractConditionBuilder<UpdateBuilder> {
 
-    protected final SQL sql = new SQL();
-    protected final List<String> setList = new ArrayList<>();
+    private final Update update;
     private boolean allowNull = BuilderConfig.ALLOW_NULL;
 
-    @Override
-    public String build() {
-        sql.UPDATE(table);
-        setList.forEach(sql::SET);
-        whereList.forEach(sql::WHERE);
-        orNestList.forEach(ors -> {
-            if (!ors.isEmpty()) {
-                sql.OR().WHERE(ors.toArray(new String[0]));
-            }
-        });
-        return sql.toString();
+    public UpdateBuilder() {
+        this.update = new Update();
     }
 
-    @Override
-    public <R> String getColumn(SerializableFunction<R, ?> function) {
-        return FunctionUtil.getMetaColumn(function).wrapColumn();
+    public UpdateBuilder(Update update) {
+        this.update = update;
+    }
+    
+    public UpdateBuilder(String sql) {
+        try {
+            update = (Update) CCJSqlParserUtil.parse(sql);
+        } catch (JSQLParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public UpdateBuilder allowNull(boolean allowNull) {
@@ -47,13 +41,23 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
         return this;
     }
 
-    public UpdateBuilder updateTable(Class<?> updateClass) {
-        updateTable(AnnoUtil.getTableName(updateClass));
-        return this;
+    @Override
+    public Object build() {
+        return update.withWhere(expressionList.stream().reduce((left, right) -> {
+            if (orList.contains(right)) {
+                return new OrExpression(left, right);
+            }
+            return new AndExpression(left, right);
+        }).orElse(null));
     }
 
-    public UpdateBuilder updateTable(String table) {
-        this.table = SqlConstant.wrapBackQuote(table);
+    @Override
+    public String toString() {
+        return build().toString();
+    }
+
+    public UpdateBuilder updateTable(Class<?> updateClass) {
+        update.withTable(getTable(updateClass));
         return this;
     }
 
@@ -62,26 +66,9 @@ public class UpdateBuilder extends CommonConditionBuilder<UpdateBuilder> {
     }
 
     public <R> UpdateBuilder set(boolean flag, SerializableFunction<R, ?> function, Object param) {
-        String columnName = FunctionUtil.getMetaColumn(function).getColumnName();
-        return set(flag, columnName, param);
-    }
-
-    public UpdateBuilder set(String column, Object param) {
-        return set(true, column, param);
-    }
-
-    public UpdateBuilder set(boolean flag, String column, Object param) {
         if (flag && (ObjectUtil.isNotEmpty(param) || allowNull)) {
-            String wrapped = SqlConstant.wrapBackQuote(column);
-            String resolve = ConditionType.resolve(ConditionType.EQ, wrapped, param, this);
-            setList.add(resolve);
+            update.addUpdateSet(getColumn(function), WrapType.getWrapExpression(this, param));
         }
         return this;
     }
-
-    public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.update(build(), paramMap) : 0;
-    }
-
-
 }

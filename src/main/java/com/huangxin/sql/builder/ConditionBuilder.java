@@ -1,44 +1,58 @@
 package com.huangxin.sql.builder;
 
-import com.huangxin.sql.type.ConditionType;
-import com.huangxin.sql.util.FunctionUtil;
 import com.huangxin.sql.func.SerializableFunction;
+import com.huangxin.sql.type.ConditionType;
+import net.sf.jsqlparser.schema.Column;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * ConditionBuilder
  *
  * @author 黄鑫
  */
-public interface ConditionBuilder<T> extends Builder, Serializable {
+public interface ConditionBuilder<T> extends Serializable {
 
-    default <R> String getColumn(SerializableFunction<R, ?> function) {
-        return FunctionUtil.getMetaColumn(function).wrapTableDotColumn();
+    default T and(Consumer<AndBuilder> andConsumer) {
+        return and(true, andConsumer);
     }
 
-    default T apply(String applySql, Object... params) {
-        return this.apply(true, applySql, params);
-}
+    T and(boolean flag, Consumer<AndBuilder> andConsumer);
 
-    T apply(boolean flag, String applySql, Object... params);
+    default T or(Consumer<OrBuilder> orConsumer) {
+        return or(true, orConsumer);
+    }
+
+    T or(boolean flag, Consumer<OrBuilder> orConsumer);
+
+    <R> Column toColumn(SerializableFunction<R, ?> function);
+
+    default Column toColumn(String columnName) {
+        return new Column(columnName);
+    }
 
     default <R> T apply(ConditionType conditionType, SerializableFunction<R, ?> function, Object param) {
-        return apply(true, conditionType, getColumn(function), param);
+        return apply(true, conditionType, toColumn(function), param);
     }
 
     default <R> T apply(boolean flag, ConditionType conditionType, SerializableFunction<R, ?> function, Object param) {
-        return apply(flag, conditionType, getColumn(function), param);
+        return apply(flag, conditionType, toColumn(function), param);
     }
 
-    default <R> T apply(ConditionType conditionType, String column, Object param) {
-        return apply(true, conditionType, column, param);
+    default <R> T apply(ConditionType conditionType, String columnName, Object param) {
+        return apply(true, conditionType, columnName, param);
     }
 
-    T apply(boolean flag, ConditionType conditionType, String column, Object param);
+    default T apply(boolean flag, ConditionType conditionType, String columnName, Object param) {
+        return apply(flag, conditionType, toColumn(columnName), param);
+    }
+
+    T apply(boolean flag, ConditionType conditionType, Column column, Object param);
+
 
     default <R> T eq(SerializableFunction<R, ?> function, Object param) {
         return this.eq(true, function, param);

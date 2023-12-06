@@ -1,6 +1,7 @@
 package com.huangxin.sql.builder;
 
-import java.util.Map;
+import net.sf.jsqlparser.expression.Expression;
+
 import java.util.function.Consumer;
 
 /**
@@ -8,11 +9,16 @@ import java.util.function.Consumer;
  *
  * @author huangxin
  */
-public class HavingBuilder<T extends ConditionBuilder<T>> extends CommonConditionBuilder<HavingBuilder<T>> {
+public class HavingBuilder extends AbstractConditionBuilder<HavingBuilder> {
 
-    public HavingBuilder(Map<String, Object> paramMap, Map<Class<?>, String> aliasMap, Consumer<HavingBuilder<T>> consumer) {
-        this.paramMap = paramMap;
-        this.aliasMap = aliasMap;
+    public HavingBuilder(AbstractConditionBuilder<?> builder, Consumer<HavingBuilder> consumer) {
+        this.paramMap = builder.getParamMap();
+        this.tableMap = builder.getTableMap();
         this.consumer = consumer;
+    }
+
+    @Override
+    public Expression build() {
+        return buildExpression();
     }
 }

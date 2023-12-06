@@ -1,13 +1,20 @@
 package com.huangxin.sql.builder;
 
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.huangxin.sql.entity.MetaColumn;
-import com.huangxin.sql.constant.SqlConstant;
-import com.huangxin.sql.entity.SqlEntity;
-import com.huangxin.sql.util.SqlSessionUtil;
-import com.huangxin.sql.util.AnnoUtil;
+import com.huangxin.sql.entity.BaseBuilder;
+import com.huangxin.sql.type.WrapType;
+import com.huangxin.sql.util.CommonUtil;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.RowConstructor;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.values.ValuesStatement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -19,11 +26,35 @@ import java.util.stream.Collectors;
  *
  * @author 黄鑫
  */
-public class InsertBuilder extends SqlEntity implements Builder {
+public class InsertBuilder extends BaseBuilder {
+
+    private final Insert insert;
+    private final ExpressionList rows = new ExpressionList().withUsingBrackets(false);
+
+    public InsertBuilder() {
+        insert = new Insert();
+    }
+
+    public InsertBuilder(Insert insert) {
+        this.insert = insert;
+    }
+
+    public InsertBuilder(String sql) {
+        try {
+            insert = (Insert) CCJSqlParserUtil.parse(sql);
+        } catch (JSQLParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
-    public String build() {
-        return sql.toString();
+    public Insert build() {
+        return insert;
+    }
+
+    @Override
+    public String toString() {
+        return build().toString();
     }
 
     public <T> InsertBuilder insert(T t) {
@@ -37,10 +68,17 @@ public class InsertBuilder extends SqlEntity implements Builder {
         }
 
         T firstItem = iterator.next();
-        String tableName = AnnoUtil.getTableName(firstItem.getClass());
-        Field[] fields = ReflectUtil.getFields(firstItem.getClass(), field -> !Modifier.isStatic(field.getModifiers()));
-        String intoColumn = Arrays.stream(fields).map(field -> MetaColumn.ofField(field).wrapColumn()).collect(Collectors.joining(", "));
-        sql.INSERT_INTO(tableName).INTO_COLUMNS(intoColumn);
+        Table table = getTable(firstItem.getClass());
+        if (insert.getTable() != null && !insert.getTable().equals(table)) {
+            rows.withExpressions(new ArrayList<>());
+        }
+        insert.withTable(table).withSelect(new Select().withSelectBody(new SetOperationList().addBrackets(false).addSelects(new ValuesStatement(rows))));
+        List<Field> fields = CommonUtil.getColumnFields(firstItem.getClass());
+        List<Column> columnList = fields.stream()
+                .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                .map(this::getColumn)
+                .collect(Collectors.toList());
+        insert.withColumns(columnList);
         insertValues(firstItem, fields);
 
         while (iterator.hasNext()) {
@@ -50,19 +88,11 @@ public class InsertBuilder extends SqlEntity implements Builder {
         return this;
     }
 
-    private <T> void insertValues(T firstItem, Field[] fields) {
-        Arrays.stream(fields)
-                .map(ReflectUtil::getFieldName)
-                .map(fieldName -> ReflectUtil.getFieldValue(firstItem, fieldName))
-                .forEach(fieldValue -> {
-                    String paramName = SqlConstant.ARG + paramMap.size();
-                    sql.INTO_VALUES(StrUtil.format("'{}'", SqlConstant.wrapParam(paramName)));
-                    paramMap.put(paramName, fieldValue);
-                });
-        sql.ADD_ROW();
-    }
-
-    public int execute() {
-        return ObjectUtil.isNotEmpty(sql) ? SqlSessionUtil.insert(build(), paramMap) : 0;
+    private <T> void insertValues(T item, List<Field> fields) {
+        List<Expression> expressionList = fields.stream()
+                .map(field -> WrapType.getWrapExpression(this, ReflectUtil.getFieldValue(item, field)))
+                .collect(Collectors.toList());
+        RowConstructor rowConstructor = new RowConstructor().withExprList(new ExpressionList(expressionList));
+        rows.addExpressions(rowConstructor);
     }
 }

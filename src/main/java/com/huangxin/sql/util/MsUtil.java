@@ -49,7 +49,7 @@ public class MsUtil {
             {
                 this.add((new ResultMap.Builder(MsUtil.this.configuration, "defaultResultMap", Integer.TYPE, new ArrayList<>())).build());
             }
-        }).keyProperty(AnnoUtil.getPrimaryName(parameterType)).keyColumn(AnnoUtil.getPrimaryColumn(parameterType)).build();
+        })/*.keyProperty(CommonUtil.getPrimaryName(parameterType)).keyColumn(CommonUtil.getPrimaryColumn(parameterType))*/.build();
         this.configuration.addMappedStatement(ms);
     }
 
