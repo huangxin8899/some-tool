@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -12,6 +13,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.huangxin.excel.handle.importHandle.*;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.unit.DataSize;
@@ -67,7 +69,7 @@ public class ImportHelper<T>
     private final List<HeadHandle> headHandles = new ArrayList<>();
     // 用户流式处理器集合
     private final List<StreamHandle<T>> streamHandles = new ArrayList<>();
-    //
+    // entity校验分组
     private final List<Class<?>> groups = new ArrayList<>();
     // 分批处理的最大批次，默认最大1000
     private int batchCount = 1000;

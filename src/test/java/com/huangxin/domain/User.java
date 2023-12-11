@@ -8,6 +8,10 @@ import com.huangxin.sql.anno.Condition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * User
@@ -22,11 +26,13 @@ public class User {
 
     @Condition
     @Column("`id`")
+    @NotNull(message = "id不能为空")
     private Integer id;
 
     @ExtConfig(autoMerge = true, replace = {"bb_aa"})
     @Condition(type = ConditionType.LIKE)
     @Column("`name`")
+    @NotNull(message = "name不能为空")
     private String name;
 
     @Condition(fieldName = "aged")

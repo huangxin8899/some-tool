@@ -1,13 +1,19 @@
 package com.huangxin.excel;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.huangxin.domain.User;
-import com.huangxin.excel.handle.exportHandle.DefaultMergeStrategy;
 import com.huangxin.excel.handle.exportHandle.ReplaceWriteHandle;
+import com.huangxin.excel.handle.importHandle.ErrMsgWriter;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,12 +24,21 @@ import java.util.List;
 public class ExcelTest {
 
     @Test
-    public void testImport() {
-        File file = new File("C:\\Users\\chenh\\Desktop\\新建 XLSX 工作表 (2).xlsx");
-        ImportHelper.ofFile(file, User.class, new Limit(), "123")
-                .skip(50)
-                .limit(21)
+    public void testImport() throws IOException {
+        File file = new File("C:\\Users\\chenh\\Desktop\\新建 XLSX 工作表 (3).xlsx");
+        File tempFile = FileUtil.file("C:\\Users\\chenh\\Desktop\\123.xlsx");
+        ImportHelper<User> userImportHelper = ImportHelper.ofFile(file, User.class, new Limit(), "123");
+        userImportHelper
+                .notHeadNum(0)
                 .page(10, users -> System.out.println("+1"));
+
+        EasyExcel.write(tempFile)
+                .withTemplate(file)
+                .sheet()
+                .registerWriteHandler(new ErrMsgWriter(userImportHelper.getErrorMap(), 1))
+                .doWrite(new ArrayList<>());
+
+
         System.out.println();
     }
 
@@ -32,7 +47,7 @@ public class ExcelTest {
         String fileName = "C:\\Users\\chenh\\Desktop\\新建 XLSX 工作表 (3).xlsx";
         EasyExcel.write(fileName, User.class)
                 .sheet()
-                .registerWriteHandler(new DefaultMergeStrategy())
+//                .registerWriteHandler(new DefaultMergeStrategy())
                 .registerWriteHandler(new ReplaceWriteHandle())
                 .doWrite(ExcelTest::getList);
     }
