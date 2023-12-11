@@ -66,5 +66,6 @@ public class WriteErrUtil {
                         .ifPresent(File::deleteOnExit);
             }
         }
+        return null;
     }
 }
