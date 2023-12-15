@@ -6,7 +6,6 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.huangxin.domain.User;
 import com.huangxin.excel.handle.exportHandle.ReplaceWriteHandle;
-import com.huangxin.excel.handle.importHandle.ErrMsgWriter;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,11 +31,13 @@ public class ExcelTest {
                 .notHeadNum(0)
                 .page(10, users -> System.out.println("+1"));
 
-        EasyExcel.write(tempFile)
-                .withTemplate(file)
-                .sheet()
-                .registerWriteHandler(new ErrMsgWriter(userImportHelper.getErrorMap(), 1))
-                .doWrite(new ArrayList<>());
+//        EasyExcel.write(tempFile)
+//                .withTemplate(file)
+//                .sheet()
+//                .registerWriteHandler(new ErrMsgWriter(userImportHelper.getErrorMap(), 1))
+//                .doWrite(new ArrayList<>());
+
+        WriteErrUtil.writeErrMsgAndUpload(file, 0, 1, userImportHelper.getErrorMap());
 
 
         System.out.println();

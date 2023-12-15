@@ -29,5 +29,5 @@ public class Limit {
     /**
      * 头部行数(包含非表头的提示行)
      */
-    private Integer headNum = 2;
+    private Integer headNum = 1;
 }
