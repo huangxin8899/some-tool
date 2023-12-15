@@ -82,8 +82,12 @@ public class AsmUtil implements SmartInitializingSingleton {
      * @return              返回值
      */
     public static Object invoke(Object o, String methodName, Object... args) {
-        return Optional.ofNullable(BEAN_INVOKE.putIfAbsent(o.getClass(), MethodAccess.get(o.getClass())))
-                .orElseGet(() -> MethodAccess.get(o.getClass()))
-                .invoke(o, methodName, args);
+        Class<?> type = o.getClass();
+        MethodAccess methodAccess = BEAN_INVOKE.get(type);
+        if (methodAccess == null) {
+            methodAccess = MethodAccess.get(type);
+            BEAN_INVOKE.put(type, methodAccess);
+        }
+        return methodAccess.invoke(o, methodName, args);
     }
 }
